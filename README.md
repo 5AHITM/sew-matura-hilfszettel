@@ -99,6 +99,6 @@ this.router.navigate(['gallery', index]);
 constructor(private route: ActivatedRoute) {}
 
 ngOnInit() {
-	this.pathParam = route.snapschot.params['param'];
+	this.pathParam = route.snapshot.params['param'];
 }
 ```
