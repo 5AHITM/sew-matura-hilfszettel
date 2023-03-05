@@ -1,5 +1,45 @@
 # sew-matura-hilfszettel
 
+## Inhaltsverzeichnis
+
+- [Angular](#angular)
+  - [Bindings](#bindings)
+  - [Direktiven](#direktiven)
+  - [Components Databinding](#components-databinding)
+  - [Services](#services)
+  - [Routing](#routing)
+    - [Konfiguration](#konfiguration)
+    - [Verwendung](#verwendung)
+  - [Observable](#observable)
+    - [Subject](#subject)
+  - [Forms](#forms)
+    - [Template Driven](#template-driven)
+    - [Reactive](#reactive)
+  - [HTTP](#http)
+    - [Usage](#usage)
+  - [Websockets](#websockets)
+- [Quarkus](#quarkus)
+  - [Entities and ID Generation](#entities-and-id-generation)
+    - [Autoincrement](#autoincrement)
+    - [Table](#table)
+    - [Sequence](#sequence)
+    - [Embedded ID](#embedded-id)
+    - [Column](#column)
+  - [Entity Relations](#entity-relations)
+    - [One to One](#one-to-one)
+    - [One to Many (with JsonIgnore)](#one-to-many)
+    - [Many to Many](#many-to-many)
+    - [Fetching](#fetching)
+  - [Repository](#repository)
+  - [Panache](#panache)
+    - [Entity](#entity)
+    - [Entity without automatic ID](#entity-without-automatic-id)
+    - [Named Query](#named-query)
+    - [Repository](#repository-1)
+  - [Resource](#resource)
+  - [Websocket](#websocket)
+    - [Server](#server)
+
 # Angular
 
 ## Bindings
@@ -554,6 +594,20 @@ public class AddressId implements Serializable {
 }
 ```
 
+### Column
+
+```java
+@Entity
+public class Address {
+  @Id
+  @GeneratedValue()
+  @Column(name = "address_id")
+  private Long id;
+
+  private String street;
+}
+```
+
 ## Entity Relations
 
 ### One to One
@@ -599,6 +653,13 @@ public class Address {
 
   @OneToMany(mappedBy = "address", cascade = CascadeType.ALL)
   @JoinColumn(name = "address_id")
+
+  //if bidirectional use either @JsonIdentityInfo & JsonIdentityReference or @JsonIgnore
+  @Column(nullable = false)
+  @JsonIdentityInfo(
+  generator = ObjectIdGenerators.PropertyGenerator.class,
+  property = "id")
+  @JsonIdentityReference(alwaysAsId = true)
   private List<Person> persons;
 }
 ```
