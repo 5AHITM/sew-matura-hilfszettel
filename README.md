@@ -7,7 +7,18 @@
 ```html
 <p>{{ text }}</p>
 <button [disabled]="text == 'Hello World!'" (click)="handleClick()">btn</button>
-<input [(ngModel)]="name">
+<input [(ngModel)]="name" />
+```
+
+```tsx
+export class AppComponent {
+  text = "Welcome to demo1";
+  name = "unknown";
+
+  handleClick() {
+    this.text = "Hello World!";
+  }
+}
 ```
 
 ## Direktiven
@@ -16,15 +27,53 @@
 <p *ngIf="name !== ''">Hello {{ name }}</p>
 <p [ngStyle]="color: getColor()" [ngClass]="type: getTextType()"></p>
 <ul>
-	<li *ngFor="let user of users; let i = index">{{ i }} - {{ user }}</li>
+  <li *ngFor="let user of users; let i = index">{{ i }} - {{ user }}</li>
 </ul>
+
+<div [ngSwitch]="day">
+  <p *ngSwitchCase="days.MONDAY">Montag</p>
+  <p *ngSwitchCase="days.TUESDAY">Dienstag</p>
+  <p *ngSwitchDefault>Sonstiger Tag</p>
+</div>
+```
+
+```tsx
+export class AppComponent {
+  name = "unknown";
+  color = "red";
+  type = "bold";
+  users = ["user1", "user2", "user3"];
+  day = Days.MONDAY;
+  days = Days;
+
+  getColor() {
+    return this.color;
+  }
+
+  getTextType() {
+    return this.type;
+  }
+}
+
+export enum Days {
+  MONDAY,
+  TUESDAY,
+  WEDNESDAY,
+}
 ```
 
 ## Components Databinding
 
 ```tsx
-@Input('name') name!: string;
+@Input('firstname') firstname!: string;
+@Input('lastname') lastname!: string;
 @Output() removeEvent = new EventEmitter();
+@ViewChild('nicknameInput', {static: false}) nicknameInput: ElementRef;
+nickname = '';
+
+login() {
+  this.nickname = this.nicknameInput.nativeElement.value;
+}
 
 remove() {
 this.removeEvent.emit();
@@ -32,8 +81,17 @@ this.removeEvent.emit();
 ```
 
 ```html
+<input type="text" #nicknameInput />
+<button (click)="login()">Login</button>
+
+<p>Hello {{nickname}}</p>
+
 <p #pTag>gets removed</p>
-<some-component [name]="name" (removeEvent)="handleRemoveEvent(pTag)"></some-component>
+<some-component
+  [firstname]="'Max'"
+  lastname="Muster"
+  (removeEvent)="handleRemoveEvent(pTag)"
+></some-component>
 ```
 
 ```tsx
@@ -83,22 +141,351 @@ imports: [
 ### Verwendung
 
 ```html
-<router-outlet></router-outlet>
 <a routerLink="/gallery">Gallery</a>
+<a routerLink="/gallery" [queryParams]="{category: 'Nature'}">
+  Gallery for Nature Pictures
+</a>
+<router-outlet></router-outlet>
 ```
 
 ```tsx
 constructor(private router: Router, private route: ActivatedRoute) {}
 
 this.router.navigate(['gallery']);
-this.router.navigate(['gallery'], {relativeTo: route});
+this.router.navigate(['gallery'], {relativeTo: this.route});
 this.router.navigate(['gallery', index]);
+this.router.navigate(['gallery'], {queryParams: {category: 'Nature'}});
 ```
 
 ```tsx
-constructor(private route: ActivatedRoute) {}
+export class TextComponent implements OnInit {
+  index: string;
+  category: string;
 
-ngOnInit() {
-	this.pathParam = route.snapshot.params['param'];
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit() {
+    this.route.snapshot.params.subscribe((params: Params) => {
+      this.index = params["index"];
+    });
+    this.route.snapshot.queryParams.subscribe((params: Params) => {
+      this.category = params["category"];
+    });
+  }
 }
 ```
+
+## Observable
+
+```tsx
+export class AppComponent implements OnInit, OnDestroy {
+  myObsSubscription: Subscription;
+
+  ngOnInit() {
+    const myObservable = Observable.create((observer: Observer<string>) => {
+      setTimeout(() => {
+        observer.next("first package");
+      }, 2000);
+      setTimeout(() => {
+        observer.next("second package");
+      }, 4000);
+      setTimeout(() => {
+        observer.error("this does not work");
+      }, 5000);
+    });
+
+    this.myObsSubscription = myObservable.subscribe(
+      (data: string) => {
+        console.log(data);
+      },
+      (error: string) => {
+        console.log(error);
+      },
+      () => {
+        console.log("completed");
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    this.myObsSubscription.unsubscribe();
+  }
+}
+```
+
+### Subject
+
+```tsx
+export class SearchService {
+  searchSubject = new Subject<string>();
+
+  constructor() {}
+
+  search(term: string) {
+    this.searchSubject.next(term);
+  }
+}
+```
+
+```tsx
+export class Comp1Component implements OnInit {
+  constructor(private searchService: SearchService) {}
+
+  ngOnInit() {}
+
+  search(term: HTMLInputElement) {
+    this.searchService.search(term.value);
+  }
+}
+```
+
+```tsx
+export class Comp2Component implements OnInit {
+  searchSubscription: Subscription;
+
+  constructor(private searchService: SearchService) {}
+
+  ngOnInit() {
+    this.searchSubscription = this.searchService.searchSubject.subscribe(
+      (data: string) => {
+        console.log(data);
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    this.searchSubscription.unsubscribe();
+  }
+}
+```
+
+## Forms
+
+### Template Driven
+
+```html
+<form (ngSubmit)="onSubmit(f)" #f="ngForm">
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input
+      type="text"
+      id="username"
+      class="form-control"
+      name="username"
+      ngModel
+      required
+    />
+  </div>
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input
+      type="email"
+      id="email"
+      class="form-control"
+      name="email"
+      ngModel
+      required
+      email
+      #email="ngModel"
+    />
+    <span class="help-block" *ngIf="!email.valid && email.touched">
+      Please enter a valid email address!
+    </span>
+  </div>
+
+  <button type="submit" class="btn btn-primary" [disabled]="!f.valid">
+    Submit
+  </button>
+</form>
+```
+
+```tsx
+export class AppComponent {
+  onSubmit(form: NgForm) {
+    console.log(form.value.username);
+  }
+}
+```
+
+### Reactive
+
+```html
+<form [formGroup]="regForm">
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input
+      type="text"
+      id="username"
+      class="form-control"
+      formControlName="username"
+    />
+    <span
+      *ngIf="!regForm.get('username').valid && regForm.get('username').touched"
+      class="help-block"
+    >
+      Please enter a valid username!
+    </span>
+  </div>
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input
+      type="email"
+      id="email"
+      class="form-control"
+      formControlName="email"
+    />
+    <span
+      *ngIf="!regForm.get('email').valid && regForm.get('email').touched"
+      class="help-block"
+    >
+      Please enter a valid email address!
+    </span>
+  </div>
+
+  <button
+    type="submit"
+    class="btn btn-primary"
+    (click)="onSubmit()"
+    [disabled]="!regForm.valid"
+  >
+    Submit
+  </button>
+</form>
+```
+
+```tsx
+export class AppComponent implements OnInit {
+  regForm: FormGroup;
+
+  ngOnInit() {
+    this.regForm = new FormGroup({
+      username: new FormControl(null, Validators.required),
+      email: new FormControl(null, [Validators.required, Validators.email]),
+    });
+  }
+
+  onSubmit() {
+    console.log(this.regForm.value);
+  }
+}
+```
+
+## HTTP
+
+```tsx
+ @NgModule({
+  declarations: [AppComponent],
+  imports: [
+	BrowserModule,
+	FormsModule,
+	HttpClientModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+```
+
+```tsx
+export class PostService {
+  constructor(private http: HttpClient) {}
+
+  createAndStorePost(title: string, content: string) {
+    const postData: Post = { title: title, content: content };
+    this.http
+      .post<{ name: string }>(
+        "https://ng-complete-guide-6f4f5.firebaseio.com/posts.json",
+        postData
+      )
+      .subscribe((responseData) => {
+        console.log(responseData);
+      });
+  }
+
+  fetchPosts() {
+    this.http.get<Post>(
+      "https://ng-complete-guide-6f4f5.firebaseio.com/posts.json"
+    );
+  }
+
+  fetchPostsWithHeaders() {
+    return this.http.get<Post>(
+      "https://ng-complete-guide-6f4f5.firebaseio.com/posts.json",
+      {
+        headers: new HttpHeaders({ "Custom-Header": "Hello" }),
+        params: new HttpParams().set("print", "pretty"),
+        observe: "body", // oder 'response', 'events'
+      }
+    );
+  }
+
+  deletePosts() {
+    return this.http.delete(
+      "https://ng-complete-guide-6f4f5.firebaseio.com/posts.json"
+    );
+  }
+}
+```
+
+### Usage
+
+```tsx
+export class AppComponent implements OnInit {
+  loadedPosts: Post[] = [];
+  error = null;
+
+  constructor(private postService: PostService) {}
+
+  ngOnInit() {
+    this.postService.fetchPosts().subscribe(
+      (posts) => {
+        this.loadedPosts = posts;
+      },
+      (error) => {
+        this.error = error.message;
+        console.log(error);
+      }
+    );
+  }
+
+  onCreatePost(postData: Post) {
+    this.postService.createAndStorePost(postData.title, postData.content);
+  }
+
+  onFetchPosts() {
+    this.postService.fetchPosts();
+  }
+
+  onClearPosts() {
+    this.postService.deletePosts().subscribe(() => {
+      this.loadedPosts = [];
+    });
+  }
+}
+```
+
+## Websockets
+
+```tsx
+export class WebSocketService implements NgOnInit {
+  myWebSocket: WebSocketSubject<Message>;
+
+  ngOnInit() {
+    this.myWebSocket = webSocket("ws://localhost:8080/ws");
+    this.myWebSocket.asObservable().subscribe(
+      (msg: Message) => console.log("message received: " + msg),
+      (err: Event) => console.log("error: " + err),
+      () => console.log("complete")
+    );
+  }
+
+  sendMessage(msg: Message) {
+    this.myWebSocket.next(msg);
+  }
+
+  close() {
+    this.myWebSocket.complete();
+  }
+}
+```
+
+# Quarkus
