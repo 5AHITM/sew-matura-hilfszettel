@@ -489,3 +489,377 @@ export class WebSocketService implements NgOnInit {
 ```
 
 # Quarkus
+
+## Entities and ID Generation
+
+### Autoincrement
+
+```java
+@Entity
+public class Address {
+  @Id
+  @GeneratedValue()
+  private Long id;
+
+  private String street;
+}
+```
+
+### Table
+
+```java
+@Entity
+@TableGenerator(name = "addressGen", initialValue = 1000, allocationSize = 50)
+public class Address {
+  @Id
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "addressGen")
+  private Long id;
+
+  private String street;
+}
+```
+
+### Sequence
+
+```java
+@Entity
+@SequenceGenerator(name = "addressSeq", initialValue = 1000, allocationSize = 50)
+public class Address {
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "addressSeq")
+  private Long id;
+
+  private String street;
+}
+```
+
+### Embedded ID
+
+```java
+@Entity
+public class Address {
+  @EmbeddedId
+  private AddressId id;
+
+  private String street;
+}
+```
+
+```java
+@Embeddable
+public class AddressId implements Serializable {
+  private Long id;
+
+  private String city;
+}
+```
+
+## Entity Relations
+
+### One to One
+
+```java
+@Entity
+public class Address {
+  @Id
+  @GeneratedValue()
+  private Long id;
+
+  private String street;
+
+  @OneToOne(mappedBy = "address")
+  private Person person;
+}
+```
+
+```java
+@Entity
+public class Person {
+  @Id
+  @GeneratedValue()
+  private Long id;
+
+  private String name;
+
+  @OneToOne
+  private Address address;
+}
+```
+
+### One to Many
+
+```java
+@Entity
+public class Address {
+  @Id
+  @GeneratedValue()
+  private Long id;
+
+  private String street;
+
+  @OneToMany(mappedBy = "address", cascade = CascadeType.ALL)
+  @JoinColumn(name = "address_id")
+  private List<Person> persons;
+}
+```
+
+```java
+@Entity
+public class Person {
+  @Id
+  @GeneratedValue()
+  private Long id;
+
+  private String name;
+
+  @ManyToOne
+  private Address address;
+}
+```
+
+### Many to Many
+
+```java
+@Entity
+public class Address {
+  @Id
+  @GeneratedValue()
+  private Long id;
+
+  private String street;
+
+  @ManyToMany(mappedBy = "addresses")
+  private List<Person> persons;
+}
+```
+
+```java
+@Entity
+public class Person {
+  @Id
+  @GeneratedValue()
+  private Long id;
+
+  private String name;
+
+  @ManyToMany
+  private List<Address> addresses;
+}
+```
+
+### Fetching
+
+```java
+@Entity
+public class Address {
+  @Id
+  @GeneratedValue()
+  private Long id;
+
+  private String street;
+
+  @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY) // default oder EAGER
+  @JoinColumn(name = "address_id")
+  private List<Person> persons;
+}
+```
+
+## Repository
+
+```java
+@ApplicationScoped
+public class AddressRepository {
+
+  @Inject
+  EntityManager em;
+
+  public Address save(Address address) {
+    if (address.getId() == null) {
+      em.persist(address);
+      return address;
+    } else {
+      return em.merge(address);
+    }
+  }
+
+  public Address findById(Long id) {
+    return em.find(Address.class, id);
+  }
+
+  public void deleteById(Long id) {
+    Address address = findById(id);
+    em.remove(address);
+  }
+}
+```
+
+## Panache
+
+### Entity
+
+```java
+@Entity
+public class Address extends PanacheEntity {
+  private String street;
+}
+```
+
+### Entity without automatic ID
+
+```java
+@Entity
+public class Address extends PanacheEntityBase {
+  @Id
+  @GeneratedValue()
+  private Long id;
+
+  private String street;
+}
+```
+
+### Named Query
+
+```java
+@Entity
+@NamedQueries({
+  @NamedQuery(name = "Address.findAll", query = "from Address"),
+  @NamedQuery(name = "Address.findForStreet", query = "from Address where street = ?1")
+})
+public class Address extends PanacheEntity {
+  private String street;
+}
+
+return Address.find("#Address.findForStreet", street);
+
+```
+
+### Repository
+
+```java
+@ApplicationScoped
+public class AddressRepository implements PanacheRepository<Address> {
+
+  public Address save(Address address) {
+    if (address.getId() == null) {
+      persist(address);
+      return address;
+    } else {
+      return getEntityManager().merge(address);
+    }
+  }
+
+  public Address findById(Long id) {
+    return find("id", id).firstResult();
+  }
+
+  public void deleteById(Long id) {
+    Address address = findById(id);
+    delete(address);
+  }
+}
+```
+
+## Resource
+
+```java
+@Path("/api")
+public class AdressResource {
+  @Inject
+  AddressRepository addressRepository;
+
+  @GET
+  @Path("/addresses")
+  @Produces(MediaType.APPLICATION_JSON)
+  public List<Address> getAddresses() {
+    return addressRepository.listAll();
+  }
+
+  @GET
+  @Path("/addresses/{id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Address getAddress(@PathParam("id") Long id) {
+    return addressRepository.findById(id);
+  }
+
+  @POST
+  @Path("/addresses")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Address createAddress(Address address) {
+    return addressRepository.save(address);
+  }
+
+  @PUT
+  @Path("/addresses")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Address updateAddress( Address address) {
+    return addressRepository.save(address);
+  }
+
+  @DELETE
+  @Path("/addresses/{id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public void deleteAddress(@PathParam("id") Long id) {
+    addressRepository.deleteById(id);
+  }
+
+  //with query param
+  @GET
+  @Path("/addresses")
+  @Produces(MediaType.APPLICATION_JSON)
+  public List<Address> getAddresses(@QueryParam("street") String street) {
+    return addressRepository.list("street", street);
+  }
+}
+```
+
+## Websocket
+
+### Server
+
+```java
+@ServerEndpoint("/websocket")
+public class WebSocketServer {
+
+  Set<Session> sessions = new HashSet<>();
+
+  @OnOpen
+  public void onOpen(Session session) {
+    System.out.println("Connected ... " + session.getId());
+  }
+
+  @OnMessage
+  public String onMessage(String message, Session session) {
+    System.out.println("Message from " + session.getId() + ": " + message);
+    return "Server: " + message;
+  }
+
+  @OnClose
+  public void onClose(Session session, CloseReason closeReason) {
+    System.out.println(String.format("Session %s close because of %s", session.getId(), closeReason));
+  }
+
+  @OnError
+  public void onError(Session session, Throwable throwable) {
+    System.out.println("Error: " + throwable.getMessage());
+  }
+
+  public void broadcast(Message message) {
+    String msgString= "{}";
+    try {
+      msgString = objectMapper.writeValueAsString(msg);
+    } catch (JsonProcessingException e) {
+      log.severe(e.getMessage());
+    }
+    String sendMsg = msgString;
+    sessions.values().forEach(s -> {
+      s.getAsyncRemote().sendObject(sendMsg, result -> {
+        if (result.getException() != null) {
+          log.severe("Unable to send message: " + result.getException());
+        }
+      });
+    });
+  }
+}
+```
