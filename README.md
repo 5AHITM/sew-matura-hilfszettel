@@ -25,12 +25,15 @@
     - [Sequence](#sequence)
     - [Embedded ID](#embedded-id)
     - [Column](#column)
+    
   - [Entity Relations](#entity-relations)
     - [One to One](#one-to-one)
-    - [One to Many (with JsonIgnore)](#one-to-many)
+    - [One to Many](#one-to-many)
+    - [JsonIgnore](#jsonignore)
     - [Many to Many](#many-to-many)
     - [Fetching](#fetching)
   - [Repository](#repository)
+    - [Queries](#queries)
   - [Panache](#panache)
     - [Entity](#entity)
     - [Entity without automatic ID](#entity-without-automatic-id)
@@ -654,15 +657,50 @@ public class Address {
   @OneToMany(mappedBy = "address", cascade = CascadeType.ALL)
   @JoinColumn(name = "address_id")
 
+  @Column(nullable = false)
+  private List<Person> persons;
+}
+```
+
+### JsonIgnore
+
+```java
+
+@Entity
+public class Address {
+  @Id
+  @GeneratedValue()
+  private Long id;
+
+  private String street;
+
+  @OneToMany(mappedBy = "address", cascade = CascadeType.ALL)
+  @JoinColumn(name = "address_id")
+
   //if bidirectional use either @JsonIdentityInfo & JsonIdentityReference or @JsonIgnore
+  //Ergebnis:
+  // "person": 1
+  
   @Column(nullable = false)
   @JsonIdentityInfo(
   generator = ObjectIdGenerators.PropertyGenerator.class,
   property = "id")
   @JsonIdentityReference(alwaysAsId = true)
   private List<Person> persons;
+  
+  //oder
+  
+  //Ergebnis:
+  //"person": {
+  //	   "id": 1
+  //	}
+
+  @JsonIgnoreProperties({"name"})
+  private List<Person> persons;
+  
 }
 ```
+
 
 ```java
 @Entity
@@ -753,6 +791,30 @@ public class AddressRepository {
   }
 }
 ```
+### Queries
+ @ApplicationScoped
+public class AddressRepository {
+
+  @Inject
+  EntityManager em;
+
+
+  //Join-Query mit Record	
+  public AddressDTO getAdressPerson() {
+    TypedQuery<AdressDTO> query = em.createQuery(
+            "SELECT new com.example.AddressDTO(a.address, p.name) " +
+            "FROM Address a JOIN p.name p", AdressDTO.class);
+    return query.getResultList();
+  }
+  
+  //Query mit Aggregate Funktion 	
+  public Double getAdressPerson() {
+    TypedQuery<Double> query = em.createQuery("SELECT SUM(p.income) FROM Person p", Double.class);
+    return query.getSingleResult();
+  }
+
+
+}
 
 ## Panache
 
