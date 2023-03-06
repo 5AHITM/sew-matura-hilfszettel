@@ -792,7 +792,8 @@ public class AddressRepository {
 }
 ```
 ### Queries
- @ApplicationScoped
+```java	
+@ApplicationScoped
 public class AddressRepository {
 
   @Inject
@@ -815,6 +816,7 @@ public class AddressRepository {
 
 
 }
+```
 
 ## Panache
 
