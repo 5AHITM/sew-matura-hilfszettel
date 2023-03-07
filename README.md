@@ -208,10 +208,10 @@ export class TextComponent implements OnInit {
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
-    this.route.snapshot.params.subscribe((params: Params) => {
+    this.route.params.subscribe((params: Params) => {
       this.index = params["index"];
     });
-    this.route.snapshot.queryParams.subscribe((params: Params) => {
+    this.route.queryParams.subscribe((params: Params) => {
       this.category = params["category"];
     });
   }
