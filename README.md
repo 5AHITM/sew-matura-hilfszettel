@@ -596,7 +596,7 @@ public class Address {
 }
 ```
 
-### Embedded ID
+### Embedded ID / Composite Key
 
 ```java
 @Entity
@@ -611,6 +611,7 @@ public class Address {
 ```java
 @Embeddable
 public class AddressId implements Serializable {
+//  @ManyToOne wenn 2 Tabellen
   private Long id;
 
   private String city;
