@@ -515,7 +515,7 @@ export class WebSocketService implements NgOnInit {
   public data: Survey = new Survey();
 
   ngOnInit() {
-    this.myWebSocket = webSocket("ws://localhost:8080/ws");
+    this.myWebSocket = new WebSocketSubject("ws://localhost:8080/ws");
     this.myWebSocket.asObservable().subscribe(
       (msg: Message) => console.log("message received: " + msg),
       (err: Event) => console.log("error: " + err),
