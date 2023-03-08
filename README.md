@@ -352,7 +352,7 @@ export class AppComponent {
 ```
 
 ### Reactive
-// ng generate @angular/material:table/menu/... name
+// ng generate @angular/material:table/menu/address-form/navigation/dashboard name
 
 ```html
 <form [formGroup]="regForm">
@@ -823,8 +823,8 @@ public class AddressRepository {
 
   public List<Person> getMembersByClub(Long clubId){
         String sql = "Select person from Membership ms where ms.id = :clubId";
-        return getEntityManager().createQuery(sql).setParameter("clubId", clubId).getResultList();
-	// oder .getSingleResult für nur 1
+        return getEntityManager().createQuery(sql, Person.class).setParameter("clubId", clubId).getResultList();
+	// .get(0) oder .getSingleResult für nur 1
     }
     
   public void deleteMembershipByPersonId(Long id){
