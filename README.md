@@ -352,6 +352,7 @@ export class AppComponent {
 ```
 
 ### Reactive
+// ng generate @angular/material:table/menu/... name
 
 ```html
 <form [formGroup]="regForm">
