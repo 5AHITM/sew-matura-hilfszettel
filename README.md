@@ -820,6 +820,11 @@ public class AddressRepository {
   @Inject
   EntityManager em;
 
+  public List<Person> getMembersByClub(Long clubId){
+        String sql = "Select person from Membership ms where ms.id = :clubId";
+        return getEntityManager().createQuery(sql).setParameter("clubId", clubId).getResultList();
+	// oder .getSingleResult für nur 1
+    }
 
   //Join-Query mit Record	
   public AddressDTO getAdressPerson() {
