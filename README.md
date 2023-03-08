@@ -170,6 +170,7 @@ const appRoutes: Routes = [
 	{ path: '', component: HomeComponent },
 	{ path: 'gallery', component: GalleryComponent },
 	{ path: 'gallery/:index', component: DetailComponent},
+	{ path: '**', component: TableComponent}
 ];
 
 ...
