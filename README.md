@@ -1031,7 +1031,7 @@ public class SurveyController {
 
 ### SurveyRessource
 
-```
+```java
 @Path("/survey")
 public class SurveyRessource {
     @Inject
@@ -1069,7 +1069,7 @@ public class SurveyRessource {
 }
 ```
 ### Survey
-```
+```java
 public class Survey {
     private String text;
     private Map<String,Integer> result;
