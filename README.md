@@ -942,7 +942,7 @@ public class AdressResource {
 
 ## Websocket
 
-### Server
+### WebSocketServer
 
 ```java
 @ServerEndpoint("/websocket")
@@ -953,6 +953,8 @@ public class WebSocketServer {
   @OnOpen
   public void onOpen(Session session) {
     System.out.println("Connected ... " + session.getId());
+    sessionMap.put(session.getId(), session);
+    broadcast();
   }
 
   @OnMessage
@@ -964,6 +966,7 @@ public class WebSocketServer {
   @OnClose
   public void onClose(Session session, CloseReason closeReason) {
     System.out.println(String.format("Session %s close because of %s", session.getId(), closeReason));
+    sessionMap.remove(session.getId());
   }
 
   @OnError
@@ -986,6 +989,109 @@ public class WebSocketServer {
         }
       });
     });
+    // andere Variante
+    Survey survey = surveyController.getSurvey();
+        if (survey != null) {
+            for (Session session : sessionMap.values()) {
+                session.getAsyncRemote().sendObject(Json.encode(survey));
+            }
+        }
   }
 }
+```
+### SurveyController
+
+```java
+@ApplicationScoped
+public class SurveyController {
+    Survey survey = new Survey();
+
+    public SurveyController() {
+
+    }
+
+    public void createSurvey(Survey survey) {
+        this.survey = survey;
+    }
+
+    public void vote(String option, boolean addVote) {
+        if (addVote) {
+            survey.addVoteToAnswers(option);
+        }
+        else {
+            survey.removeVoteFromAnswers(option);
+        }
+    }
+
+    public Survey getSurvey() {
+        return survey;
+    }
+}
+```
+
+### SurveyRessource
+
+```
+@Path("/survey")
+public class SurveyRessource {
+    @Inject
+    SurveyController surveyController;
+
+    @Inject
+    EventBus eventBus;
+
+    @Inject
+    SurveySocketServer surveySocketServer;
+
+    @GET
+    public Response getSurvey() {
+        return Response.ok(surveyController.getSurvey()).build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createSurvey(Survey survey) {
+        surveyController.createSurvey(survey);
+        surveySocketServer.broadcast();
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/vote/{option}/{addVote}")
+    public Response vote(@PathParam("option") String option, @PathParam("addVote") boolean addVote) throws JsonProcessingException {
+        surveyController.vote(option, addVote);
+        surveySocketServer.broadcast();
+
+        return Response.ok().build();
+    }
+
+}
+```
+### Survey
+```
+public class Survey {
+    private String text;
+    private Map<String,Integer> result;
+
+    public Survey(String text, Map<String,Integer> result) {
+        this.text = text;
+        this.result = result;
+    }
+
+    public Survey() {
+    }
+
+    public void addVoteToAnswers(String answer) {
+        if (result.containsKey(answer)) {
+            result.put(answer, result.get(answer) + 1);
+        }
+    }
+
+    public void removeVoteFromAnswers(String answer) {
+        if (result.containsKey(answer)) {
+            result.put(answer, result.get(answer) - 1);
+        }
+    }
+
 ```
