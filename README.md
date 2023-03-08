@@ -512,6 +512,7 @@ export class AppComponent implements OnInit {
 ```tsx
 export class WebSocketService implements NgOnInit {
   myWebSocket: WebSocketSubject<Message>;
+  public data: Survey = new Survey();
 
   ngOnInit() {
     this.myWebSocket = webSocket("ws://localhost:8080/ws");
@@ -520,6 +521,23 @@ export class WebSocketService implements NgOnInit {
       (err: Event) => console.log("error: " + err),
       () => console.log("complete")
     );
+    
+    // andere Version
+    this.myWebSocket = webSocket({
+      url: 'ws://localhost:8081/survey',
+      deserializer: msg => msg.data
+    });
+
+    this.myWebSocket.subscribe(value => {
+      let json = JSON.parse(value);
+      console.log(json);
+      this.data.text = json.text;
+      this.data.result = new Map(Object.keys(json.result).map(key => [key, json.result[key]]));
+      this.paint();
+    })
+  }
+  public vote(option: string) {
+      this.httpClient.post("http://localhost:8081/survey/vote/"+option+"/true",{}).subscribe();
   }
 
   sendMessage(msg: Message) {
@@ -529,6 +547,7 @@ export class WebSocketService implements NgOnInit {
   close() {
     this.myWebSocket.complete();
   }
+ 
 }
 ```
 
