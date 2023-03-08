@@ -920,11 +920,12 @@ public class AdressResource {
     return addressRepository.listAll();
   }
 
+  // mit Response
   @GET
-  @Path("/addresses/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Address getAddress(@PathParam("id") Long id) {
-    return addressRepository.findById(id);
+  @Path("/{id}")
+  public Response getClubById(@PathParam("id") Long id){
+        return Response.ok(repo.methodenNameVomRepo(id)).build();
   }
 
   @POST
