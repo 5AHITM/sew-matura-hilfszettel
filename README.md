@@ -928,27 +928,32 @@ public class AdressResource {
         return Response.ok(repo.methodenNameVomRepo(id)).build();
   }
 
-  @POST
-  @Path("/addresses")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Address createAddress(Address address) {
-    return addressRepository.save(address);
-  }
+    @POST
+    @Path("/add")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response addPerson(Person person){
+        repo.persist(person);
+        return Response.ok().entity(person).build();
+    }
 
-  @PUT
-  @Path("/addresses")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Address updateAddress( Address address) {
-    return addressRepository.save(address);
-  }
+     @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    @Path("/endMembership")
+    public Response endMembership(MembershipDTO msDTO){
+        repo.getEntityManager().merge(msDTO);
+        return Response.ok().entity(msDTO).build();
+    }
 
   @DELETE
   @Path("/addresses/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public void deleteAddress(@PathParam("id") Long id) {
-    addressRepository.deleteById(id);
+  public Response deleteMembership(@PathParam("id") Long id){
+        repo.deleteByPersonId(id);
+        return Response.ok().build();
   }
 
   //with query param
