@@ -153,6 +153,14 @@ export class LoggingService() {
 }
 ```
 
+ getMembersByClub(clubId: number){
+    return this.http.get<Person[]>("http://localhost:8081/api/club/members/" + clubId);
+  }
+
+  addMember(membershipDTO:MembershipDTO){
+    return this.http.post(this.url + "/membership/add", membershipDTO);
+  }
+
 ```tsx
 constructor(private service: LoggingService) {}
 
