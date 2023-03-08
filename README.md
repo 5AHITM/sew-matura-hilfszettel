@@ -825,6 +825,11 @@ public class AddressRepository {
         return getEntityManager().createQuery(sql).setParameter("clubId", clubId).getResultList();
 	// oder .getSingleResult für nur 1
     }
+    
+  public void deleteMembershipByPersonId(Long id){
+        String sql = "Delete from Membership ms where ms.id = :id";
+        getEntityManager().createQuery(sql).setParameter("id", id).executeUpdate();
+    }
 
   //Join-Query mit Record	
   public AddressDTO getAdressPerson() {
