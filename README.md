@@ -1012,6 +1012,7 @@ public class WebSocketServer {
   @OnMessage
   public String onMessage(String message, Session session) {
     System.out.println("Message from " + session.getId() + ": " + message);
+    session.getAsyncRemote().sendObject("Hello "+ name);
     return "Server: " + message;
   }
 
