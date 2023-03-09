@@ -1000,7 +1000,7 @@ public class AdressResource {
 @ServerEndpoint("/websocket")
 public class WebSocketServer {
 
-  Set<Session> sessions = new HashSet<>();
+  Map<String, Session> sessionMap = new ConcurrentHashMap<>();
 
   @OnOpen
   public void onOpen(Session session) {
