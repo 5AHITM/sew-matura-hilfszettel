@@ -852,6 +852,14 @@ public class AddressRepository {
     TypedQuery<Double> query = em.createQuery("SELECT SUM(p.income) FROM Person p", Double.class);
     return query.getSingleResult();
   }
+  
+  TypedQuery<Membership> query = em.createQuery(
+                "SELECT m from Membership m " +
+                        "where m.id.club.id = :club_id " +
+                        "and m.id.person.ssid = :ssid", Membership.class);
+  query.setParameter("club_id", membershipDTO.club_id);
+  query.setParameter("ssid", membershipDTO.ssid);
+  return query.getSingleResult();
 
 
 }
