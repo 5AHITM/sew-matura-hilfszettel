@@ -570,9 +570,9 @@ export class WebSocketService implements NgOnInit {
 public class Address {
   @Id
   @GeneratedValue()
-  private Long id;
+  public Long id; // Für alle Entities: entweder public oder private mit Getter & Setter
 
-  private String street;
+  public String street;
 }
 ```
 
@@ -584,9 +584,9 @@ public class Address {
 public class Address {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "addressGen")
-  private Long id;
+  public Long id;
 
-  private String street;
+  public String street;
 }
 ```
 
@@ -598,9 +598,9 @@ public class Address {
 public class Address {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "addressSeq")
-  private Long id;
+  public Long id;
 
-  private String street;
+  public String street;
 }
 ```
 
@@ -610,9 +610,9 @@ public class Address {
 @Entity
 public class Address {
   @EmbeddedId
-  private AddressId id;
+  public AddressId id;
 
-  private String street;
+  public String street;
 }
 ```
 
@@ -620,9 +620,9 @@ public class Address {
 @Embeddable
 public class AddressId implements Serializable {
 //  @ManyToOne wenn 2 Tabellen
-  private Long id;
+  public Long id;
 
-  private String city;
+  public String city;
 }
 ```
 
@@ -634,9 +634,9 @@ public class Address {
   @Id
   @GeneratedValue()
   @Column(name = "address_id")
-  private Long id;
+  public Long id;
 
-  private String street;
+  public String street;
 }
 ```
 
@@ -649,12 +649,12 @@ public class Address {
 public class Address {
   @Id
   @GeneratedValue()
-  private Long id;
+  public Long id;
 
-  private String street;
+  public String street;
 
   @OneToOne(mappedBy = "address")
-  private Person person;
+  public Person person;
 }
 ```
 
@@ -663,12 +663,12 @@ public class Address {
 public class Person {
   @Id
   @GeneratedValue()
-  private Long id;
+  public Long id;
 
-  private String name;
+  public String name;
 
   @OneToOne
-  private Address address;
+  public Address address;
 }
 ```
 
@@ -679,15 +679,15 @@ public class Person {
 public class Address {
   @Id
   @GeneratedValue()
-  private Long id;
+  public Long id;
 
-  private String street;
+  public String street;
 
   @OneToMany(mappedBy = "address", cascade = CascadeType.ALL)
   @JoinColumn(name = "address_id")
 
   @Column(nullable = false)
-  private List<Person> persons;
+  public List<Person> persons;
 }
 ```
 
@@ -699,9 +699,9 @@ public class Address {
 public class Address {
   @Id
   @GeneratedValue()
-  private Long id;
+  public Long id;
 
-  private String street;
+  public String street;
 
   @OneToMany(mappedBy = "address", cascade = CascadeType.ALL)
   @JoinColumn(name = "address_id")
@@ -715,7 +715,7 @@ public class Address {
   generator = ObjectIdGenerators.PropertyGenerator.class,
   property = "id")
   @JsonIdentityReference(alwaysAsId = true)
-  private List<Person> persons;
+  public List<Person> persons;
   
   //oder
   
@@ -725,7 +725,7 @@ public class Address {
   //	}
 
   @JsonIgnoreProperties({"name"})
-  private List<Person> persons;
+  public List<Person> persons;
   
 }
 ```
@@ -736,12 +736,12 @@ public class Address {
 public class Person {
   @Id
   @GeneratedValue()
-  private Long id;
+  public Long id;
 
-  private String name;
+  public String name;
 
   @ManyToOne
-  private Address address;
+  public Address address;
 }
 ```
 
@@ -752,12 +752,12 @@ public class Person {
 public class Address {
   @Id
   @GeneratedValue()
-  private Long id;
+  public Long id;
 
-  private String street;
+  public String street;
 
   @ManyToMany(mappedBy = "addresses")
-  private List<Person> persons;
+  public List<Person> persons;
 }
 ```
 
@@ -766,12 +766,12 @@ public class Address {
 public class Person {
   @Id
   @GeneratedValue()
-  private Long id;
+  public Long id;
 
-  private String name;
+  public String name;
 
   @ManyToMany
-  private List<Address> addresses;
+  public List<Address> addresses;
 }
 ```
 
@@ -782,13 +782,13 @@ public class Person {
 public class Address {
   @Id
   @GeneratedValue()
-  private Long id;
+  public Long id;
 
-  private String street;
+  public String street;
 
   @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY) // default oder EAGER
   @JoinColumn(name = "address_id")
-  private List<Person> persons;
+  public List<Person> persons;
 }
 ```
 
