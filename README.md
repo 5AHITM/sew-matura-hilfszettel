@@ -1043,10 +1043,10 @@ public class WebSocketServer {
       });
     });
     // andere Variante
-    for (Session session: sessionMap.values()
-             ) {
-            session.getAsyncRemote().sendObject(message);
-     }
+    Survey survey = surveyController.getSurvey();
+        for (Session session : sessionMap.values()) {
+             session.getAsyncRemote().sendObject(Json.encode(survey));
+        }
   }
 }
 ```
