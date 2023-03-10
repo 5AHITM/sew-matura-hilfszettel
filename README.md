@@ -25,6 +25,7 @@
     - [Sequence](#sequence)
     - [Embedded ID](#embedded-id)
     - [Column](#column)
+    - [URIInfo](#uriInfo)
     
   - [Entity Relations](#entity-relations)
     - [One to One](#one-to-one)
@@ -639,6 +640,25 @@ public class Address {
   public String street;
 }
 ```
+
+### UriInfo
+
+```
+@PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response putEmployee(Employee employee, @Context UriInfo context) {
+        try {
+            Employee emp = repo.getEntityManager().merge(employee);
+            URI uri = context.getAbsolutePathBuilder().path(Long.toString(emp.id)).build();
+            return Response.created(uri).build();
+        }catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+    ```
 
 ## Entity Relations
 
