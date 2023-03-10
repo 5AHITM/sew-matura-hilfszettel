@@ -519,7 +519,7 @@ export class AppComponent implements OnInit {
 
 ```tsx
 export class WebSocketService implements NgOnInit {
-  myWebSocket!: WebSocketSubject<Message>;
+  myWebSocket!: WebSocketSubject<any>;
   public data: Survey = new Survey();
 
   ngOnInit() {
