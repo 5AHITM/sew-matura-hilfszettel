@@ -537,7 +537,7 @@ export class WebSocketService implements NgOnInit {
     });
 
     this.myWebSocket.subscribe(value => {
-      let json = JSON.parse(value);
+      let json = JSON.parse(value.toString());
       console.log(json);
       this.data.text = json.text;
       this.data.result = new Map(Object.keys(json.result).map(key => [key, json.result[key]]));
