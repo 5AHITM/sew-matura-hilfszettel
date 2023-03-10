@@ -1006,13 +1006,14 @@ public class WebSocketServer {
   public void onOpen(Session session) {
     System.out.println("Connected ... " + session.getId());
     sessionMap.put(session.getId(), session);
-    broadcast();
+    session.getAsyncRemote().sendObject("Hello "+ name);
+    
   }
 
   @OnMessage
   public String onMessage(String message, Session session) {
     System.out.println("Message from " + session.getId() + ": " + message);
-    session.getAsyncRemote().sendObject("Hello "+ name);
+    broadcast(name + ":" + message);
     return "Server: " + message;
   }
 
