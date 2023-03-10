@@ -18,6 +18,7 @@
   - [Pipes](#pipes)
   - [Angular Material](#angular-Material)
   - [DATE API](#date-API)
+  - [HTML Zusatz](#html-zusatz)
   - [HTTP](#http)
     - [Usage](#usage)
   - [Websockets](#websockets)
@@ -481,6 +482,17 @@ localDateTime.getMonth();
 private LocalDate bookingDate;
 @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 private LocalDateTime lastUpdate;
+```
+
+## HTML-Zusatz
+### Select
+```
+<select name="cars" id="cars">
+  <option value="volvo">Volvo</option>
+  <option value="saab">Saab</option>
+  <option value="mercedes">Mercedes</option>
+  <option value="audi">Audi</option>
+</select>
 ```
 
 ## HTTP
