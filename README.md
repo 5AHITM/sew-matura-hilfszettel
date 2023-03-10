@@ -447,7 +447,7 @@ dashboard
 ```
 
 ## Date-API
-# LocalDate
+### LocalDate
 ```
 LocalDate localDate=LocalDate.now();
 LocalDate.of(2015,02,20);
@@ -463,7 +463,7 @@ LocalDateTime beginningOfDay = LocalDate.parse("2016-06-12").atStartOfDay();
 LocalDate firstDayOfMonth = LocalDate.parse("2016-06-12").with(TemporalAdjusters.firstDayOfMonth());
 ```
 
-# LocalDateTime
+### LocalDateTime
 ```
 LocalDateTime.now();
 LocalDateTime.of(2015,Month.FEBRUARY,20,06,30);
@@ -473,7 +473,7 @@ localDateTime.minusHours(2);
 localDateTime.getMonth();
 ```
 
-# DateFormat
+### DateFormat
 ```
 @JsonbDateFormat(value = "yyyy-MM-dd")
 @Column(name = "BOOKINGDATE")
