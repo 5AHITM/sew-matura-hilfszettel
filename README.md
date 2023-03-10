@@ -519,7 +519,7 @@ export class AppComponent implements OnInit {
 
 ```tsx
 export class WebSocketService implements NgOnInit {
-  myWebSocket: WebSocketSubject<Message>;
+  myWebSocket!: WebSocketSubject<Message>;
   public data: Survey = new Survey();
 
   ngOnInit() {
@@ -993,6 +993,9 @@ public class AdressResource {
 ```
 
 ## Websocket
+
+appication.properties
+```quarkus.websocket.dispatch-to-worker=true```
 
 ### WebSocketServer
 
