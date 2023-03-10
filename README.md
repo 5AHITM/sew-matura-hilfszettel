@@ -1020,6 +1020,9 @@ public class newWebsocketServer {
     public String onMessage(String message, Session session, @PathParam("name") String name) {
         System.out.println("Message from " + session.getId() + ": " + message);
         broadcast(name + ":" + message);
+	// Animal JSON decode Beispiel
+	Animal animal =  Json.decodeValue(message, Animal.class);
+	
         return "Server: " + message;
     }
 
