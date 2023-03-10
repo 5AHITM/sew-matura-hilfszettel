@@ -1231,3 +1231,138 @@ public class Survey {
     }
 
 ```
+
+### Encoder and Decoder
+
+#### GameWebsocket
+```java
+@ServerEndpoint(value = "/quiz-game-websocket/{gameId}/{name}",
+        encoders = {GameEncoder.class})
+public class GameWebSocket {
+    public void onOpen(Session session, @PathParam("gameId") Long gameId, @PathParam("name") String name) {
+        ...
+
+        // Example for sending an object
+        session.getAsyncRemote().sendObject(GameMapper.INSTANCE.gameFromEntity(game));
+    }
+
+    @OnClose
+    public void onClose(Session session, @PathParam("gameId") Long gameId, @PathParam("name") String name) {
+        ...
+    }
+
+    @OnError
+    public void onError(Session session, @PathParam("gameId") Long gameId, @PathParam("name") String name, Throwable throwable) {
+        // Error Report
+        ...
+    }
+
+    @OnMessage
+    @Transactional
+    public void onMessage(String message,
+                          @PathParam("gameId") Long gameId,
+                          @PathParam("name") String name,
+                          Session session) {
+        GameDecoder decoder = new GameDecoder();
+        if (decoder.willDecode(message)) {
+            try {
+                handleAdmin(decoder.decode(message), gameId);
+            } catch (DecodeException e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
+    }
+}
+```
+#### Mapstruct
+```java
+@Mapper
+public interface GameMapper {
+    GameMapper INSTANCE = Mappers.getMapper(GameMapper.class);
+
+    @Mapping(source = "users", target = "users", qualifiedByName = "usersListFromEntity")
+    @Mapping(source = "quiz", target = "quiz", qualifiedByName = "quizFromEntity")
+    Game gameFromEntity(GameEntity ge);
+
+    @Mapping(source = "users", target = "users", qualifiedByName = "usersListToEntity")
+    @Mapping(source = "quiz", target = "quiz", qualifiedByName = "quizToEntity")
+    GameEntity gameToEntity(Game g);
+
+
+    @Named("usersListFromEntity")
+    static List<User> usersListFromEntity(List<UserEntity> users) {
+        return users.stream().map(UserMapper.INSTANCE::userFromEntity).collect(Collectors.toList());
+    }
+
+    @Named("quizFromEntity")
+    static Quiz quizFromEntity(QuizEntity qe) {
+        return QuizMapper.INSTANCE.quizFromEntity(qe);
+    }
+
+    @Named("usersListToEntity")
+    static List<UserEntity> usersListToEntity(List<User> users) {
+        return users.stream().map(UserMapper.INSTANCE::userToEntity).collect(Collectors.toList());
+    }
+
+    @Named("quizToEntity")
+    static QuizEntity quizToEntity(Quiz q) {
+        return QuizMapper.INSTANCE.quizToEntity(q);
+    }
+}
+```
+
+#### Encoder
+```java
+public class GameEncoder implements Encoder.Text<Game> {
+
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public String encode(Game game) throws EncodeException {
+        try {
+            return objectMapper.writeValueAsString(game);
+        } catch (JsonProcessingException e) {
+            throw new EncodeException(game, e.getMessage());
+        }
+    }
+
+    @Override
+    public void init(EndpointConfig endpointConfig) {}
+
+    @Override
+    public void destroy() {}
+}
+```
+
+#### Decoder
+```java
+public class GameDecoder implements Decoder.Text<Game> {
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public Game decode(String s) throws DecodeException {
+        try {
+            return objectMapper.readValue(s, Game.class);
+        } catch (JsonProcessingException e) {
+            throw new DecodeException(s, e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean willDecode(String s) {
+        try {
+            objectMapper.readValue(s, Game.class);
+        } catch (JsonProcessingException e) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void init(EndpointConfig endpointConfig) {}
+
+    @Override
+    public void destroy() {}
+}
+```
