@@ -1185,6 +1185,10 @@ public class SurveyRessource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createSurvey(Survey survey) {
         surveyController.createSurvey(survey);
+	
+	//Alternativ Event über EventBus senden
+	eventBus.send("eventName", survey);
+	
         surveySocketServer.broadcast();
         return Response.ok().build();
     }
