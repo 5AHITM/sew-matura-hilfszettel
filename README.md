@@ -998,58 +998,53 @@ public class AdressResource {
 
 ```java
 @ServerEndpoint("/websocket")
-public class WebSocketServer {
+public class newWebsocketServer {
 
-  Map<String, Session> sessionMap = new ConcurrentHashMap<>();
+    Map<String, Session> sessionMap = new ConcurrentHashMap<>();
 
-  @OnOpen
-  public void onOpen(Session session) {
-    System.out.println("Connected ... " + session.getId());
-    sessionMap.put(session.getId(), session);
-    session.getAsyncRemote().sendObject("Hello "+ name);
-    
-  }
+    @Inject
+    SurveyController surveyController;
 
-  @OnMessage
-  public String onMessage(String message, Session session) {
-    System.out.println("Message from " + session.getId() + ": " + message);
-    broadcast(name + ":" + message);
-    return "Server: " + message;
-  }
+    @OnOpen
+    public void onOpen(Session session,@PathParam("name") String name) {
+        System.out.println("Connected ... " + session.getId());
+        sessionMap.put(session.getId(), session);
+        session.getAsyncRemote().sendObject("Hello "+ name);
 
-  @OnClose
-  public void onClose(Session session, CloseReason closeReason) {
-    System.out.println(String.format("Session %s close because of %s", session.getId(), closeReason));
-    sessionMap.remove(session.getId());
-  }
-
-  @OnError
-  public void onError(Session session, Throwable throwable) {
-    System.out.println("Error: " + throwable.getMessage());
-  }
-
-  public void broadcast(Message message) {
-    String msgString= "{}";
-    try {
-      msgString = objectMapper.writeValueAsString(msg);
-    } catch (JsonProcessingException e) {
-      log.severe(e.getMessage());
     }
-    String sendMsg = msgString;
-    sessions.values().forEach(s -> {
-      s.getAsyncRemote().sendObject(sendMsg, result -> {
-        if (result.getException() != null) {
-          log.severe("Unable to send message: " + result.getException());
-        }
-      });
-    });
-    // andere Variante
-    Survey survey = surveyController.getSurvey();
+
+    @OnMessage
+    public String onMessage(String message, Session session, @PathParam("name") String name) {
+        System.out.println("Message from " + session.getId() + ": " + message);
+        broadcast(name + ":" + message);
+        return "Server: " + message;
+    }
+
+    @OnClose
+    public void onClose(Session session, CloseReason closeReason, @PathParam("name") String name) {
+        System.out.println(String.format("Session %s close because of %s", session.getId(), closeReason));
+        sessionMap.remove(session.getId());
+    }
+
+    @OnError
+    public void onError(Session session, @PathParam("name") String name,Throwable throwable) {
+        System.out.println("Error: " + throwable.getMessage());
+    }
+
+    public void broadcast(String message) {
+        // Nachricht schicken
         for (Session session : sessionMap.values()) {
-             session.getAsyncRemote().sendObject(Json.encode(survey));
+            session.getAsyncRemote().sendObject(message);
         }
-  }
+
+        // JSON Objekt schicken
+        Survey survey = surveyController.getSurvey();
+        for (Session session : sessionMap.values()) {
+            session.getAsyncRemote().sendObject(Json.encode(survey));
+        }
+    }
 }
+
 ```
 ### SurveyController
 
