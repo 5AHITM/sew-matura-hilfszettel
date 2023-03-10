@@ -15,6 +15,8 @@
   - [Forms](#forms)
     - [Template Driven](#template-driven)
     - [Reactive](#reactive)
+  - [Pipes](#pipes)
+  - [Angular Material](#angularMaterial)
   - [HTTP](#http)
     - [Usage](#usage)
   - [Websockets](#websockets)
@@ -421,6 +423,26 @@ export class AppComponent implements OnInit {
     console.log(this.regForm.value);
   }
 }
+```
+
+## Pipes
+```
+<td mat-cell *matCellDef="let element">{{element.endTs |date: 'dd.MM.yyyy
+hh:mm:ss' }}</td>
+{{auction.startingPrice | currency}}
+{{auction.startingPrice | currency:'EUR'}}
+```
+
+## Angular Material
+```
+ng add @angular/material
+ng generate @angular/material:table Table
+
+weitere generierbare Materials: 
+menu
+address-form
+navigation
+dashboard
 ```
 
 ## HTTP
