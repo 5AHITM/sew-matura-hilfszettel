@@ -643,7 +643,7 @@ public class Address {
 
 ### UriInfo
 
-```
+```java
 @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -658,7 +658,7 @@ public class Address {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
-    ```
+```
 
 ## Entity Relations
 
