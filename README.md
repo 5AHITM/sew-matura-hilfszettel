@@ -997,7 +997,7 @@ public class AdressResource {
 ### WebSocketServer
 
 ```java
-@ServerEndpoint("/websocket")
+@ServerEndpoint("/websocket/{name}")
 public class newWebsocketServer {
 
     Map<String, Session> sessionMap = new ConcurrentHashMap<>();
