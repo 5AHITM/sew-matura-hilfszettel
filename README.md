@@ -17,6 +17,7 @@
     - [Reactive](#reactive)
   - [Pipes](#pipes)
   - [Angular Material](#angular-Material)
+  - [DATE API](#date-API)
   - [HTTP](#http)
     - [Usage](#usage)
   - [Websockets](#websockets)
@@ -443,6 +444,42 @@ menu
 address-form
 navigation
 dashboard
+```
+
+## Date-API
+# LocalDate
+```
+LocalDate localDate=LocalDate.now();
+LocalDate.of(2015,02,20);
+LocalDate.parse("2015-02-20");
+LocalDate tomorrow=LocalDate.now().plusDays(1);
+LocalDate previousMonthSameDay=LocalDate.now().minus(1,ChronoUnit.MONTHS);
+DayOfWeek sunday = LocalDate.parse("2016-06-12").getDayOfWeek();
+int twelve = LocalDate.parse("2016-06-12").getDayOfMonth();
+boolean leapYear=LocalDate.now().isLeapYear();
+boolean notBefore = LocalDate.parse("2016-06-12").isBefore(LocalDate.parse("2016-06-11"));
+boolean isAfter = LocalDate.parse("2016-06-12").isAfter(LocalDate.parse("2016-06-11"));
+LocalDateTime beginningOfDay = LocalDate.parse("2016-06-12").atStartOfDay();
+LocalDate firstDayOfMonth = LocalDate.parse("2016-06-12").with(TemporalAdjusters.firstDayOfMonth());
+```
+
+# LocalDateTime
+```
+LocalDateTime.now();
+LocalDateTime.of(2015,Month.FEBRUARY,20,06,30);
+LocalDateTime.parse("2015-02-20T06:30:00");
+localDateTime.plusDays(1);
+localDateTime.minusHours(2);
+localDateTime.getMonth();
+```
+
+# DateFormat
+```
+@JsonbDateFormat(value = "yyyy-MM-dd")
+@Column(name = "BOOKINGDATE")
+private LocalDate bookingDate;
+@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+private LocalDateTime lastUpdate;
 ```
 
 ## HTTP
