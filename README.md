@@ -16,7 +16,7 @@
     - [Template Driven](#template-driven)
     - [Reactive](#reactive)
   - [Pipes](#pipes)
-  - [Angular Material](#angularMaterial)
+  - [Angular Material](#angular-Material)
   - [HTTP](#http)
     - [Usage](#usage)
   - [Websockets](#websockets)
@@ -433,7 +433,7 @@ hh:mm:ss' }}</td>
 {{auction.startingPrice | currency:'EUR'}}
 ```
 
-## Angular Material
+## Angular-Material
 ```
 ng add @angular/material
 ng generate @angular/material:table Table
