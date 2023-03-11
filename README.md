@@ -600,7 +600,7 @@ export class AppComponent implements OnInit {
 ## Websockets
 
 ```tsx
-export class WebSocketService implements NgOnInit {
+export class WebSocketService implements OnInit {
   myWebSocket!: WebSocketSubject<any>;
   public data: Survey = new Survey();
 
@@ -625,7 +625,6 @@ export class WebSocketService implements NgOnInit {
       this.data.result = new Map(
         Object.keys(json.result).map((key) => [key, json.result[key]])
       );
-      this.paint();
     });
   }
   public vote(option: string) {
