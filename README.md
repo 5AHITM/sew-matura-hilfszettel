@@ -1100,7 +1100,9 @@ public class AdressResource {
 ## Websocket
 
 appication.properties
-`quarkus.websocket.dispatch-to-worker=true`
+`quarkus.websocket.dispatch-to-worker=true
+quarkus.http.cors.origins=*
+`
 
 ### WebSocketServer
 
