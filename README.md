@@ -22,7 +22,7 @@
     - [MatInput](#matinput)
     - [SnackBar](#snackbar)
     - [Table](#table)
-  - [List](#list)
+    - [List](#list)
   - [Date-API](#date-api)
     - [LocalDate](#localdate)
     - [LocalDateTime](#localdatetime)
@@ -32,6 +32,8 @@
   - [HTTP](#http)
     - [Usage](#usage)
   - [Websockets](#websockets)
+  - [AuthGuard](#authguard)
+  - [Interceptors](#interceptors)
 - [Quarkus](#quarkus)
   - [Entities and ID Generation](#entities-and-id-generation)
     - [Autoincrement](#autoincrement)
@@ -610,7 +612,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
 
 ```
 
-## List
+### List
 ```html
 <mat-list>
   <mat-list-item>
@@ -819,6 +821,66 @@ export class WebSocketService implements OnInit {
     this.myWebSocket.complete();
   }
 }
+```
+
+## AuthGuard
+```ts
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthGuardService {
+  constructor(private authService: AuthService,
+              private router: Router) { }
+
+  canActivate(): boolean {
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['auth']);
+      return false;
+    }
+    return true;
+  }
+}
+```
+
+`routing`
+```ts
+const routes: Routes = [
+  {path: 'home', component: HomeComponent, canActivate: [AuthGuardService]},
+  {path: 'auth', component: AuthComponent},
+  {path: '**', redirectTo: 'home'}
+];
+```
+
+## Interceptors
+```ts
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+
+  constructor() {}
+
+  intercept(req: HttpRequest<any>,
+            next: HttpHandler): Observable<HttpEvent<any>> {
+    const idToken = sessionStorage.getItem('id_token');
+    if (idToken) {
+      const cloned = req.clone({
+        headers: req.headers.set('Authorization', 'Bearer ' + idToken)
+      });
+      return next.handle(cloned);
+    } else {
+      return next.handle(req);
+    }
+  }
+}
+```
+
+`app.module.ts`
+```ts
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor,
+      multi: true
+    },
+  ]
 ```
 
 # Quarkus
