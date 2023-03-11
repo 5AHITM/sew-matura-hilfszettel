@@ -30,7 +30,6 @@
     - [Embedded ID](#embedded-id)
     - [Column](#column)
     - [URIInfo](#uriInfo)
-    
   - [Entity Relations](#entity-relations)
     - [One to One](#one-to-one)
     - [One to Many](#one-to-many)
@@ -46,7 +45,7 @@
     - [Repository](#repository-1)
   - [Resource](#resource)
   - [Websocket](#websocket)
-    - [Server](#server)
+    - [WebSocketServer](#websocketserver)
 
 # Angular
 
@@ -165,6 +164,7 @@ export class LoggingService() {
     return this.http.post(this.url + "/membership/add", membershipDTO);
   }
 ```
+
 ```tsx
 constructor(private service: LoggingService) {}
 
@@ -222,12 +222,12 @@ export class TextComponent implements OnInit {
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
-      this.id = params["id"] == null ? '' : params["id"]
-    })
-    this.route.params.subscribe(params => {
-      this.category = params["category"] == null ? '' : params["category"]
-    })
+    this.route.params.subscribe((params) => {
+      this.id = params["id"] == null ? "" : params["id"];
+    });
+    this.route.params.subscribe((params) => {
+      this.category = params["category"] == null ? "" : params["category"];
+    });
   }
 }
 ```
@@ -365,6 +365,7 @@ export class AppComponent {
 ```
 
 ### Reactive
+
 // ng generate @angular/material:table/menu/address-form/navigation/dashboard name
 
 ```html
@@ -429,6 +430,7 @@ export class AppComponent implements OnInit {
 ```
 
 ## Pipes
+
 ```
 <td mat-cell *matCellDef="let element">{{element.endTs |date: 'dd.MM.yyyy
 hh:mm:ss' }}</td>
@@ -437,11 +439,12 @@ hh:mm:ss' }}</td>
 ```
 
 ## Angular-Material
+
 ```
 ng add @angular/material
 ng generate @angular/material:table Table
 
-weitere generierbare Materials: 
+weitere generierbare Materials:
 menu
 address-form
 navigation
@@ -449,7 +452,9 @@ dashboard
 ```
 
 ## Date-API
+
 ### LocalDate
+
 ```
 LocalDate localDate=LocalDate.now();
 LocalDate.of(2015,02,20);
@@ -466,6 +471,7 @@ LocalDate firstDayOfMonth = LocalDate.parse("2016-06-12").with(TemporalAdjusters
 ```
 
 ### LocalDateTime
+
 ```
 LocalDateTime.now();
 LocalDateTime.of(2015,Month.FEBRUARY,20,06,30);
@@ -476,6 +482,7 @@ localDateTime.getMonth();
 ```
 
 ### DateFormat
+
 ```
 @JsonbDateFormat(value = "yyyy-MM-dd")
 @Column(name = "BOOKINGDATE")
@@ -485,7 +492,9 @@ private LocalDateTime lastUpdate;
 ```
 
 ## HTML-Zusatz
+
 ### Select
+
 ```
 <select name="cars" id="cars">
   <option value="volvo">Volvo</option>
@@ -602,23 +611,27 @@ export class WebSocketService implements NgOnInit {
       (err: Event) => console.log("error: " + err),
       () => console.log("complete")
     );
-    
+
     // andere Version
     this.myWebSocket = webSocket({
-      url: 'ws://localhost:8081/survey',
-      deserializer: msg => msg.data
+      url: "ws://localhost:8081/survey",
+      deserializer: (msg) => msg.data,
     });
 
-    this.myWebSocket.subscribe(value => {
+    this.myWebSocket.subscribe((value) => {
       let json = JSON.parse(value.toString());
       console.log(json);
       this.data.text = json.text;
-      this.data.result = new Map(Object.keys(json.result).map(key => [key, json.result[key]]));
+      this.data.result = new Map(
+        Object.keys(json.result).map((key) => [key, json.result[key]])
+      );
       this.paint();
-    })
+    });
   }
   public vote(option: string) {
-      this.httpClient.post("http://localhost:8081/survey/vote/"+option+"/true",{}).subscribe();
+    this.httpClient
+      .post("http://localhost:8081/survey/vote/" + option + "/true", {})
+      .subscribe();
   }
 
   sendMessage(msg: Message) {
@@ -628,7 +641,6 @@ export class WebSocketService implements NgOnInit {
   close() {
     this.myWebSocket.complete();
   }
- 
 }
 ```
 
@@ -801,16 +813,16 @@ public class Address {
   //if bidirectional use either @JsonIdentityInfo & JsonIdentityReference or @JsonIgnore
   //Ergebnis:
   // "person": 1
-  
+
   @Column(nullable = false)
   @JsonIdentityInfo(
   generator = ObjectIdGenerators.PropertyGenerator.class,
   property = "id")
   @JsonIdentityReference(alwaysAsId = true)
   public List<Person> persons;
-  
+
   //oder
-  
+
   //Ergebnis:
   //"person": {
   //	   "id": 1
@@ -818,10 +830,9 @@ public class Address {
 
   @JsonIgnoreProperties({"name"})
   public List<Person> persons;
-  
+
 }
 ```
-
 
 ```java
 @Entity
@@ -912,8 +923,10 @@ public class AddressRepository {
   }
 }
 ```
+
 ### Queries
-```java	
+
+```java
 @ApplicationScoped
 public class AddressRepository {
 
@@ -925,26 +938,26 @@ public class AddressRepository {
         return getEntityManager().createQuery(sql, Person.class).setParameter("clubId", clubId).getResultList();
 	// .get(0) oder .getSingleResult für nur 1
     }
-    
+
   public void deleteMembershipByPersonId(Long id){
         String sql = "Delete from Membership ms where ms.id = :id";
         getEntityManager().createQuery(sql).setParameter("id", id).executeUpdate();
     }
 
-  //Join-Query mit Record	
+  //Join-Query mit Record
   public AddressDTO getAdressPerson() {
     TypedQuery<AdressDTO> query = em.createQuery(
             "SELECT new com.example.AddressDTO(a.address, p.name) " +
             "FROM Address a JOIN p.name p", AdressDTO.class);
     return query.getResultList();
   }
-  
-  //Query mit Aggregate Funktion 	
+
+  //Query mit Aggregate Funktion
   public Double getAdressPerson() {
     TypedQuery<Double> query = em.createQuery("SELECT SUM(p.income) FROM Person p", Double.class);
     return query.getSingleResult();
   }
-  
+
   TypedQuery<Membership> query = em.createQuery(
                 "SELECT m from Membership m " +
                         "where m.id.club.id = :club_id " +
@@ -1046,32 +1059,33 @@ public class AdressResource {
         return Response.ok(repo.methodenNameVomRepo(id)).build();
   }
 
-    @POST
-    @Path("/add")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Transactional
-    public Response addPerson(Person person){
-        repo.persist(person);
-        return Response.ok().entity(person).build();
-    }
+  @POST
+  @Path("/add")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Transactional
+  public Response addPerson(Person person, @Context UriInfo uriInfo){
+      repo.persist(person);
+      URI uri = uriInfo.getAbsolutePathBuilder().path(person.getId().toString()).build();
+      return Response.created(uri).entity(person).build();
+  }
 
-     @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Transactional
-    @Path("/endMembership")
-    public Response endMembership(MembershipDTO msDTO){
-        repo.getEntityManager().merge(msDTO);
-        return Response.ok().entity(msDTO).build();
-    }
+  @PUT
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Transactional
+  @Path("/endMembership")
+  public Response endMembership(MembershipDTO msDTO){
+    repo.getEntityManager().merge(msDTO);
+    return Response.ok().entity(msDTO).build();
+  }
 
   @DELETE
   @Path("/addresses/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteMembership(@PathParam("id") Long id){
-        repo.deleteByPersonId(id);
-        return Response.ok().build();
+    repo.deleteByPersonId(id);
+    return Response.ok().build();
   }
 
   //with query param
@@ -1087,7 +1101,7 @@ public class AdressResource {
 ## Websocket
 
 appication.properties
-```quarkus.websocket.dispatch-to-worker=true```
+`quarkus.websocket.dispatch-to-worker=true`
 
 ### WebSocketServer
 
@@ -1114,7 +1128,7 @@ public class newWebsocketServer {
         broadcast(name + ":" + message);
 	// Animal JSON decode Beispiel
 	Animal animal =  Json.decodeValue(message, Animal.class);
-	
+
         return "Server: " + message;
     }
 
@@ -1144,6 +1158,7 @@ public class newWebsocketServer {
 }
 
 ```
+
 ### SurveyController
 
 ```java
@@ -1198,10 +1213,10 @@ public class SurveyRessource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createSurvey(Survey survey) {
         surveyController.createSurvey(survey);
-	
+
 	//Alternativ Event über EventBus senden
 	eventBus.send("eventName", survey);
-	
+
         surveySocketServer.broadcast();
         return Response.ok().build();
     }
@@ -1217,7 +1232,9 @@ public class SurveyRessource {
 
 }
 ```
+
 ### Survey
+
 ```java
 public class Survey {
     private String text;
@@ -1248,6 +1265,7 @@ public class Survey {
 ### Encoder and Decoder
 
 #### GameWebsocket
+
 ```java
 @ServerEndpoint(value = "/quiz-game-websocket/{gameId}/{name}",
         encoders = {GameEncoder.class})
@@ -1288,7 +1306,9 @@ public class GameWebSocket {
     }
 }
 ```
+
 #### Mapstruct
+
 ```java
 @Mapper
 public interface GameMapper {
@@ -1326,6 +1346,7 @@ public interface GameMapper {
 ```
 
 #### Encoder
+
 ```java
 public class GameEncoder implements Encoder.Text<Game> {
 
@@ -1349,6 +1370,7 @@ public class GameEncoder implements Encoder.Text<Game> {
 ```
 
 #### Decoder
+
 ```java
 public class GameDecoder implements Decoder.Text<Game> {
     ObjectMapper objectMapper = new ObjectMapper();
