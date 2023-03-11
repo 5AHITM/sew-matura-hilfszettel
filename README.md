@@ -72,7 +72,7 @@ export class AppComponent {
 
 ```html
 <p *ngIf="name !== ''">Hello {{ name }}</p>
-<p [ngStyle]="color: getColor()" [ngClass]="type: getTextType()"></p>
+<p [ngStyle]="color: getColor()" [ngClass]="{type: getTextType()}"></p>
 <ul>
   <li *ngFor="let user of users; let i = index">{{ i }} - {{ user }}</li>
 </ul>
