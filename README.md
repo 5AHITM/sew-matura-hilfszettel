@@ -2,6 +2,8 @@
 
 ## Inhaltsverzeichnis
 
+- [sew-matura-hilfszettel](#sew-matura-hilfszettel)
+  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
 - [Angular](#angular)
   - [Bindings](#bindings)
   - [Direktiven](#direktiven)
@@ -16,20 +18,28 @@
     - [Template Driven](#template-driven)
     - [Reactive](#reactive)
   - [Pipes](#pipes)
-  - [Angular Material](#angular-Material)
-  - [DATE API](#date-API)
-  - [HTML Zusatz](#html-zusatz)
+  - [Angular-Material](#angular-material)
+    - [MatInput](#matinput)
+    - [SnackBar](#snackbar)
+    - [Table](#table)
+  - [List](#list)
+  - [Date-API](#date-api)
+    - [LocalDate](#localdate)
+    - [LocalDateTime](#localdatetime)
+    - [DateFormat](#dateformat)
+  - [HTML-Zusatz](#html-zusatz)
+    - [Select](#select)
   - [HTTP](#http)
     - [Usage](#usage)
   - [Websockets](#websockets)
 - [Quarkus](#quarkus)
   - [Entities and ID Generation](#entities-and-id-generation)
     - [Autoincrement](#autoincrement)
-    - [Table](#table)
+    - [Table](#table-1)
     - [Sequence](#sequence)
-    - [Embedded ID](#embedded-id)
+    - [Embedded ID / Composite Key](#embedded-id--composite-key)
     - [Column](#column)
-    - [URIInfo](#uriInfo)
+    - [UriInfo](#uriinfo)
   - [Entity Relations](#entity-relations)
     - [One to One](#one-to-one)
     - [One to Many](#one-to-many)
@@ -46,6 +56,14 @@
   - [Resource](#resource)
   - [Websocket](#websocket)
     - [WebSocketServer](#websocketserver)
+    - [SurveyController](#surveycontroller)
+    - [SurveyRessource](#surveyressource)
+    - [Survey](#survey)
+    - [Encoder and Decoder](#encoder-and-decoder)
+      - [GameWebsocket](#gamewebsocket)
+      - [Mapstruct](#mapstruct)
+      - [Encoder](#encoder)
+      - [Decoder](#decoder)
 
 # Angular
 
@@ -449,6 +467,166 @@ menu
 address-form
 navigation
 dashboard
+```
+
+### MatInput
+```html
+<mat-form-field appearance="fill">
+      <mat-label>Enter your email</mat-label>
+  <input matInput placeholder="pat@example.com" [formControl]="email" required>
+  <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
+  <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
+  <mat-hint>Hint</mat-hint>
+</mat-form-field>
+<mat-form-field appearance="fill">
+  <mat-label>Select</mat-label>
+  <mat-select>
+    <mat-option value="one">First option</mat-option>
+    <mat-option value="two">Second option</mat-option>
+  </mat-select>
+</mat-form-field>
+<mat-form-field appearance="fill">
+  <mat-label>Textarea</mat-label>
+  <textarea matInput></textarea>
+</mat-form-field>
+```
+
+```ts
+  email = new FormControl('', [Validators.required, Validators.email]);
+
+  getErrorMessage() {
+    if (this.email.hasError('required')) {
+      return 'You must enter a value';
+    }
+
+    return this.email.hasError('email') ? 'Not a valid email' : '';
+  }
+```
+
+### SnackBar
+
+```ts
+export class SnackBarOverviewExample {
+  constructor(private snackBar: MatSnackBar) {}
+
+  openSnackBar(message: string, action: string) {
+    // message and action with config => action can be undefined if none is required
+    this.snackBar.open(message, action, {
+      duration: 3000
+    });
+
+    // snackbar with own component providing data
+    let snackBarRef = this.snackBar.openFromComponent(MessageArchivedComponent, {
+      data: 'some data'
+    });
+  }
+}
+```
+
+```ts
+export class MessageArchivedComponent {
+  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: string) { }
+}
+```
+
+### Table
+```html
+<div class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource">
+
+    <!-- Position Column -->
+    <ng-container matColumnDef="position">
+      <th mat-header-cell *matHeaderCellDef> No. </th>
+      <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef> Name </th>
+      <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+    </ng-container>
+
+    <!-- Weight Column -->
+    <ng-container matColumnDef="weight">
+      <th mat-header-cell *matHeaderCellDef> Weight </th>
+      <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
+    </ng-container>
+
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="symbol">
+      <th mat-header-cell *matHeaderCellDef> Symbol </th>
+      <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                 showFirstLastButtons
+                 aria-label="Select page of periodic elements">
+  </mat-paginator>
+</div>
+```
+
+```ts
+export class TablePaginationExample implements AfterViewInit {
+  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
+  dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+  }
+}
+
+export interface PeriodicElement {
+  name: string;
+  position: number;
+  weight: number;
+  symbol: string;
+}
+
+const ELEMENT_DATA: PeriodicElement[] = [
+  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
+  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
+  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'}
+];
+```
+
+```html
+<!-- Sorting -->
+<table mat-table [dataSource]="dataSource" matSort (matSortChange)="announceSortChange($event)">
+  <ng-container matColumnDef="position">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+    <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+  </ng-container>
+
+  
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
+
+```
+
+## List
+```html
+<mat-list>
+  <mat-list-item>
+    <span matListItemTitle>Pepper</span>
+    <span matListItemLine>Produced by a plant</span>
+  </mat-list-item>
+  <mat-list-item>
+    <span matListItemTitle>Salt</span>
+    <span matListItemLine>Extracted from sea water</span>
+  </mat-list-item>
+  <mat-list-item>
+    <span matListItemTitle>Paprika</span>
+    <span matListItemLine>Produced by dried and ground red peppers</span>
+  </mat-list-item>
+</mat-list>
+
 ```
 
 ## Date-API
