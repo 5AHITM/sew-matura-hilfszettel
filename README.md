@@ -1124,13 +1124,18 @@ public class newWebsocketServer {
     }
 
     @OnMessage
-    public String onMessage(String message, Session session, @PathParam("name") String name) {
+    public void onMessage(String message, Session session, @PathParam("name") String name) {
         System.out.println("Message from " + session.getId() + ": " + message);
-        broadcast(name + ":" + message);
-	// Animal JSON decode Beispiel
-	Animal animal =  Json.decodeValue(message, Animal.class);
+	broadcast(name + ": " + message);
+	
+	// in DB speichern
+        messageRepo.persist(new Message(message));	
+	// webSocket.broadcast(message); kann auch zB beim GET in Resource aufgerufen werden
 
-        return "Server: " + message;
+	
+	
+	// Animal JSON decode Beispiel
+	Animal animal =  Json.decodeValue(message, Animal.class);  
     }
 
     @OnClose
