@@ -695,6 +695,15 @@ private LocalDateTime lastUpdate;
 </select>
 ```
 
+### DTO in .ts
+```
+ let coursePlanPersonDTO: CoursePlanPersonDTO = {
+      planId: parseInt(this.inputString),
+      firstname: this.firstName,
+      lastname: this.lastName
+    }
+```
+
 ## HTTP
 
 ```tsx
