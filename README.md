@@ -960,7 +960,8 @@ public class Address {
   @Column(name = "address_id")
   public Long id;
 
-  public String street;
+  @ManyToOne
+  Street street;
 }
 ```
 
