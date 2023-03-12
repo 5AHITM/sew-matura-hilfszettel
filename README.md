@@ -847,6 +847,9 @@ export class WebSocketService implements OnInit {
       this.data.result = new Map(
         Object.keys(json.result).map((key) => [key, json.result[key]])
       );
+      
+      // oder für einfache Messages ohne JSON
+	this.messages.push(msg) //messages: string[] = []
     });
   }
   public vote(option: string) {
