@@ -1565,7 +1565,7 @@ public class newWebsocketServer {
         webSocketServer.broadcast(name);
         return Response.ok().build();
     }
-    ```
+```
 
 ### Eventbus
 ```
