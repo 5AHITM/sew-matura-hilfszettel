@@ -1557,7 +1557,7 @@ public class newWebsocketServer {
 
 ```
 ### Resource
-```
+```java
  @Path("websocketServer/{filialeName}")
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
