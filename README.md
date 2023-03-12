@@ -1088,6 +1088,34 @@ public class Person {
 }
 ```
 
+### Self reference
+
+```java
+@Entity
+public class Person extends PanacheEntityBase {
+
+    @Id
+    @GeneratedValue
+    public Long ssid;
+
+    @Column(name = "first_name")
+    public String firstName;
+
+    @Column(name = "last_name")
+    public String lastName;
+
+    @ManyToOne
+    @JsonIgnoreProperties({"employees"})
+    public Person boss;
+
+    @OneToMany(mappedBy = "boss")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "ssid")
+    @JsonIgnoreProperties({"boss"})
+    public List<Person> employees;
+}
+```
+
 ### Many to Many
 
 ```java
