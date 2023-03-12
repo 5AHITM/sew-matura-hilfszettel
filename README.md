@@ -690,11 +690,8 @@ private LocalDateTime lastUpdate;
 ### Select
 
 ```
-<select name="cars" id="cars">
-  <option value="volvo">Volvo</option>
-  <option value="saab">Saab</option>
-  <option value="mercedes">Mercedes</option>
-  <option value="audi">Audi</option>
+ <select  [(ngModel)]="selectedLevel" (change)="selected()" id="startSelect">
+    <option *ngFor="let i of listOfObjects" value="{{i.start}}">{{i.start}}</option>
 </select>
 ```
 
