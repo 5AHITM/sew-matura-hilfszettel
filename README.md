@@ -472,10 +472,16 @@ dashboard
 ```
 
 ### MatInput
+
 ```html
 <mat-form-field appearance="fill">
-      <mat-label>Enter your email</mat-label>
-  <input matInput placeholder="pat@example.com" [formControl]="email" required>
+  <mat-label>Enter your email</mat-label>
+  <input
+    matInput
+    placeholder="pat@example.com"
+    [formControl]="email"
+    required
+  />
   <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
   <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
   <mat-hint>Hint</mat-hint>
@@ -514,66 +520,71 @@ export class SnackBarOverviewExample {
   openSnackBar(message: string, action: string) {
     // message and action with config => action can be undefined if none is required
     this.snackBar.open(message, action, {
-      duration: 3000
+      duration: 3000,
     });
 
     // snackbar with own component providing data
-    let snackBarRef = this.snackBar.openFromComponent(MessageArchivedComponent, {
-      data: 'some data'
-    });
+    let snackBarRef = this.snackBar.openFromComponent(
+      MessageArchivedComponent,
+      {
+        data: "some data",
+      }
+    );
   }
 }
 ```
 
 ```ts
 export class MessageArchivedComponent {
-  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: string) { }
+  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: string) {}
 }
 ```
 
 ### Table
+
 ```html
 <div class="mat-elevation-z8">
   <table mat-table [dataSource]="dataSource">
-
     <!-- Position Column -->
     <ng-container matColumnDef="position">
-      <th mat-header-cell *matHeaderCellDef> No. </th>
-      <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+      <th mat-header-cell *matHeaderCellDef>No.</th>
+      <td mat-cell *matCellDef="let element">{{element.position}}</td>
     </ng-container>
 
     <!-- Name Column -->
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let element">{{element.name}}</td>
     </ng-container>
 
     <!-- Weight Column -->
     <ng-container matColumnDef="weight">
-      <th mat-header-cell *matHeaderCellDef> Weight </th>
-      <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
+      <th mat-header-cell *matHeaderCellDef>Weight</th>
+      <td mat-cell *matCellDef="let element">{{element.weight}}</td>
     </ng-container>
 
     <!-- Symbol Column -->
     <ng-container matColumnDef="symbol">
-      <th mat-header-cell *matHeaderCellDef> Symbol </th>
-      <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+      <th mat-header-cell *matHeaderCellDef>Symbol</th>
+      <td mat-cell *matCellDef="let element">{{element.symbol}}</td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
 
-  <mat-paginator [pageSizeOptions]="[5, 10, 20]"
-                 showFirstLastButtons
-                 aria-label="Select page of periodic elements">
+  <mat-paginator
+    [pageSizeOptions]="[5, 10, 20]"
+    showFirstLastButtons
+    aria-label="Select page of periodic elements"
+  >
   </mat-paginator>
 </div>
 ```
 
 ```ts
 export class TablePaginationExample implements AfterViewInit {
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
+  displayedColumns: string[] = ["position", "name", "weight", "symbol"];
   dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -591,28 +602,32 @@ export interface PeriodicElement {
 }
 
 const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'}
+  { position: 1, name: "Hydrogen", weight: 1.0079, symbol: "H" },
+  { position: 2, name: "Helium", weight: 4.0026, symbol: "He" },
+  { position: 3, name: "Lithium", weight: 6.941, symbol: "Li" },
 ];
 ```
 
 ```html
 <!-- Sorting -->
-<table mat-table [dataSource]="dataSource" matSort (matSortChange)="announceSortChange($event)">
+<table
+  mat-table
+  [dataSource]="dataSource"
+  matSort
+  (matSortChange)="announceSortChange($event)"
+>
   <ng-container matColumnDef="position">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
-    <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+    <td mat-cell *matCellDef="let element">{{element.position}}</td>
   </ng-container>
 
-  
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>
-
 ```
 
 ### List
+
 ```html
 <mat-list>
   <mat-list-item>
@@ -628,7 +643,6 @@ const ELEMENT_DATA: PeriodicElement[] = [
     <span matListItemLine>Produced by dried and ground red peppers</span>
   </mat-list-item>
 </mat-list>
-
 ```
 
 ## Date-API
@@ -824,17 +838,17 @@ export class WebSocketService implements OnInit {
 ```
 
 ## AuthGuard
+
 ```ts
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class AuthGuardService {
-  constructor(private authService: AuthService,
-              private router: Router) { }
+  constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(): boolean {
     if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['auth']);
+      this.router.navigate(["auth"]);
       return false;
     }
     return true;
@@ -843,27 +857,30 @@ export class AuthGuardService {
 ```
 
 `routing`
+
 ```ts
 const routes: Routes = [
-  {path: 'home', component: HomeComponent, canActivate: [AuthGuardService]},
-  {path: 'auth', component: AuthComponent},
-  {path: '**', redirectTo: 'home'}
+  { path: "home", component: HomeComponent, canActivate: [AuthGuardService] },
+  { path: "auth", component: AuthComponent },
+  { path: "**", redirectTo: "home" },
 ];
 ```
 
 ## Interceptors
+
 ```ts
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-
   constructor() {}
 
-  intercept(req: HttpRequest<any>,
-            next: HttpHandler): Observable<HttpEvent<any>> {
-    const idToken = sessionStorage.getItem('id_token');
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
+    const idToken = sessionStorage.getItem("id_token");
     if (idToken) {
       const cloned = req.clone({
-        headers: req.headers.set('Authorization', 'Bearer ' + idToken)
+        headers: req.headers.set("Authorization", "Bearer " + idToken),
       });
       return next.handle(cloned);
     } else {
@@ -874,13 +891,15 @@ export class AuthInterceptor implements HttpInterceptor {
 ```
 
 `app.module.ts`
+
 ```ts
-  providers: [
-    {
-      provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor,
-      multi: true
-    },
-  ]
+providers: [
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: AuthInterceptor,
+    multi: true,
+  },
+];
 ```
 
 # Quarkus
@@ -947,6 +966,76 @@ public class AddressId implements Serializable {
   public Long id;
 
   public String city;
+}
+```
+
+```java
+@Embeddable
+public class MembershipId implements Serializable {
+    @Column(name="ssid")
+    public long ssid;
+
+    @Column(name="club_id")
+    public long clubId;
+}
+```
+
+```java
+@Entity
+public class Membership extends PanacheEntityBase {
+
+    @EmbeddedId
+    public MembershipId membershipId;
+
+    @ManyToOne
+    @MapsId("ssid")
+    @JoinColumn(name = "ssid")
+    public Person person;
+
+    @ManyToOne
+    @MapsId("clubId")
+    @JoinColumn(name="club_Id")
+    public Club club;
+
+    @Column(name = "join_date")
+    public LocalDate joinDate;
+
+    @Column(name = "exit_date")
+    public LocalDate exitDate;
+}
+```
+
+```java
+@Entity
+public class Person extends PanacheEntityBase {
+    @Id
+    @GeneratedValue
+    public long ssid;
+
+    @Column(name = "first_name")
+    public String firstname;
+
+    @Column(name = "last_name")
+    public String lastname;
+
+    @OneToMany(mappedBy = "person")
+    @JsonIgnoreProperties({"person"})
+    List<Membership> memberships;
+}
+```
+
+```java
+@Entity
+public class Club extends PanacheEntityBase {
+    @Id
+    @GeneratedValue
+    public long id;
+
+    public String name;
+
+    @OneToMany(mappedBy = "club")
+    @JsonIgnoreProperties({"club"})
+    public List<Membership> memberships;
 }
 ```
 
@@ -1397,15 +1486,15 @@ public class newWebsocketServer {
     public void onMessage(String message, Session session, @PathParam("name") String name) {
         System.out.println("Message from " + session.getId() + ": " + message);
 	broadcast(name + ": " + message);
-	
+
 	// in DB speichern
-        messageRepo.persist(new Message(message));	
+        messageRepo.persist(new Message(message));
 	// webSocket.broadcast(message); kann auch zB beim GET in Resource aufgerufen werden
 
-	
-	
+
+
 	// Animal JSON decode Beispiel
-	Animal animal =  Json.decodeValue(message, Animal.class);  
+	Animal animal =  Json.decodeValue(message, Animal.class);
     }
 
     @OnClose
@@ -1434,7 +1523,6 @@ public class newWebsocketServer {
 }
 
 ```
-
 
 ### Encoder and Decoder
 
