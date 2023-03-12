@@ -1556,6 +1556,19 @@ public class newWebsocketServer {
 }
 
 ```
+### Eventbus
+```
+@Inject
+EventBus eventBus;
+
+eventBus.send("eventName", survey);
+
+// Funktion in ressource
+@ConsumeEvent("greeting")
+public String consume(String name){
+	// do something with name
+}
+```
 
 ### Encoder and Decoder
 
