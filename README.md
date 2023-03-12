@@ -2,8 +2,6 @@
 
 ## Inhaltsverzeichnis
 
-# Table of contents
-
 - [Angular](#angular)
   - [Bindings](#bindings)
   - [Direktiven](#direktiven)
