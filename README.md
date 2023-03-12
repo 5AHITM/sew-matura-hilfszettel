@@ -847,9 +847,9 @@ export class WebSocketService implements OnInit {
       this.data.result = new Map(
         Object.keys(json.result).map((key) => [key, json.result[key]])
       );
-      
+
       // oder für einfache Messages ohne JSON
-	this.messages.push(msg) //messages: string[] = []
+      this.messages.push(msg); //messages: string[] = []
     });
   }
   public vote(option: string) {
@@ -1556,7 +1556,9 @@ public class newWebsocketServer {
 }
 
 ```
+
 ### Resource
+
 ```java
  @Path("websocketServer/{filialeName}")
     @GET
@@ -1568,6 +1570,7 @@ public class newWebsocketServer {
 ```
 
 ### Eventbus
+
 ```
 @Inject
 EventBus eventBus;
@@ -1580,10 +1583,12 @@ public String consume(String name){
 	// do something with name
 }
 ```
-### Eventbus
-```
-ChronoUnit.DAYS.between(startDate, endDate)
 
+### ChronoUnit
+
+```java
+ChronoUnit.DAYS.between(startDate, endDate)
+```
 
 ### Encoder and Decoder
 
