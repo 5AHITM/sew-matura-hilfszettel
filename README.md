@@ -998,6 +998,8 @@ public class AddressId implements Serializable {
 }
 ```
 
+#### With Relations
+
 ```java
 @Embeddable
 public class MembershipId implements Serializable {
