@@ -2,8 +2,8 @@
 
 ## Inhaltsverzeichnis
 
-- [sew-matura-hilfszettel](#sew-matura-hilfszettel)
-  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
+# Table of contents
+
 - [Angular](#angular)
   - [Bindings](#bindings)
   - [Direktiven](#direktiven)
@@ -29,6 +29,7 @@
     - [DateFormat](#dateformat)
   - [HTML-Zusatz](#html-zusatz)
     - [Select](#select)
+    - [DTO in .ts](#dto-in-ts)
   - [HTTP](#http)
     - [Usage](#usage)
   - [Websockets](#websockets)
@@ -37,15 +38,17 @@
 - [Quarkus](#quarkus)
   - [Entities and ID Generation](#entities-and-id-generation)
     - [Autoincrement](#autoincrement)
-    - [Table](#table-1)
+    - [Table](#table)
     - [Sequence](#sequence)
     - [Embedded ID / Composite Key](#embedded-id--composite-key)
+      - [With Relations](#with-relations)
     - [Column](#column)
     - [UriInfo](#uriinfo)
   - [Entity Relations](#entity-relations)
     - [One to One](#one-to-one)
     - [One to Many](#one-to-many)
     - [JsonIgnore](#jsonignore)
+    - [Self reference](#self-reference)
     - [Many to Many](#many-to-many)
     - [Fetching](#fetching)
   - [Repository](#repository)
@@ -54,13 +57,10 @@
     - [Entity](#entity)
     - [Entity without automatic ID](#entity-without-automatic-id)
     - [Named Query](#named-query)
-    - [Repository](#repository-1)
+    - [Repository](#repository)
   - [Resource](#resource)
   - [Websocket](#websocket)
     - [WebSocketServer](#websocketserver)
-    - [SurveyController](#surveycontroller)
-    - [SurveyRessource](#surveyressource)
-    - [Survey](#survey)
     - [Encoder and Decoder](#encoder-and-decoder)
       - [GameWebsocket](#gamewebsocket)
       - [Mapstruct](#mapstruct)
@@ -696,6 +696,7 @@ private LocalDateTime lastUpdate;
 ```
 
 ### DTO in .ts
+
 ```
  let coursePlanPersonDTO: CoursePlanPersonDTO = {
       planId: parseInt(this.inputString),
@@ -724,20 +725,20 @@ export class PostService {
   constructor(private http: HttpClient) {}
   url = "http://localhost:8081/api/";
 
-  getBySearch(searchWord: string): Observable<Course[]>{
+  getBySearch(searchWord: string): Observable<Course[]> {
     return this.http.get<Course[]>(this.url + "course/search/" + searchWord);
   }
 
-  getCourseById(id: string): Observable<Course>{
+  getCourseById(id: string): Observable<Course> {
     return this.http.get<Course>(this.url + "course/" + id);
   }
 
-  getCoursePlanByCourseId(courseId: string): Observable<CoursePlan[]>{
+  getCoursePlanByCourseId(courseId: string): Observable<CoursePlan[]> {
     return this.http.get<CoursePlan[]>(this.url + "course/plan/" + courseId);
   }
 
-  register(coursePlanPersonDTO: CoursePlanPersonDTO): Observable<any>{
-    console.log(coursePlanPersonDTO)
+  register(coursePlanPersonDTO: CoursePlanPersonDTO): Observable<any> {
+    console.log(coursePlanPersonDTO);
     return this.http.post(this.url + "course/plan1", coursePlanPersonDTO);
   }
 
@@ -786,7 +787,7 @@ export class AppComponent implements OnInit {
   error = null;
 
   constructor(private postService: PostService, private http: HttpService) {}
-  
+
   search() {
     this.http.getBySearch(this.searchInput).subscribe(value => {
       this.coursesBySearch = value;
