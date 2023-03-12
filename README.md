@@ -1142,6 +1142,7 @@ public class Person {
   public String name;
 
   @ManyToMany
+  @JoinTable(name="address_person"
   public List<Address> addresses;
 }
 ```
