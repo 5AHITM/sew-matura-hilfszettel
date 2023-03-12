@@ -713,6 +713,24 @@ private LocalDateTime lastUpdate;
 ```tsx
 export class PostService {
   constructor(private http: HttpClient) {}
+  url = "http://localhost:8081/api/";
+
+  getBySearch(searchWord: string): Observable<Course[]>{
+    return this.http.get<Course[]>(this.url + "course/search/" + searchWord);
+  }
+
+  getCourseById(id: string): Observable<Course>{
+    return this.http.get<Course>(this.url + "course/" + id);
+  }
+
+  getCoursePlanByCourseId(courseId: string): Observable<CoursePlan[]>{
+    return this.http.get<CoursePlan[]>(this.url + "course/plan/" + courseId);
+  }
+
+  register(coursePlanPersonDTO: CoursePlanPersonDTO): Observable<any>{
+    console.log(coursePlanPersonDTO)
+    return this.http.post(this.url + "course/plan1", coursePlanPersonDTO);
+  }
 
   createAndStorePost(title: string, content: string) {
     const postData: Post = { title: title, content: content };
@@ -758,7 +776,12 @@ export class AppComponent implements OnInit {
   loadedPosts: Post[] = [];
   error = null;
 
-  constructor(private postService: PostService) {}
+  constructor(private postService: PostService, private http: HttpService) {}
+  
+  search() {
+    this.http.getBySearch(this.searchInput).subscribe(value => {
+      this.coursesBySearch = value;
+    });
 
   ngOnInit() {
     this.postService.fetchPosts().subscribe(
