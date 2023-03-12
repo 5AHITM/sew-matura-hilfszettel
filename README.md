@@ -1556,6 +1556,17 @@ public class newWebsocketServer {
 }
 
 ```
+### Resource
+```
+ @Path("websocketServer/{filialeName}")
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response webSocketServer(@PathParam("filialeName") String name){
+        webSocketServer.broadcast(name);
+        return Response.ok().build();
+    }
+    ```
+
 ### Eventbus
 ```
 @Inject
