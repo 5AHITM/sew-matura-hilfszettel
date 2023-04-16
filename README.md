@@ -1,5 +1,6 @@
 # sew-matura-hilfszettel
 
+
 ## Hinweis zum Bearbeiten des Zettels:
 Für alle neue Änderungen in dem Repository muss ein neuer Branch erstellt werden und die Änderungen per Pull Request auf den Main Branch gemerged werden. Um unnötige Code Abschnitte die niemand benötigt, im Skript zu vermeiden, müssen dem Pull Request mindestens 2 andere zustimmen -> Zettel wird nicht mit unnötigen Beispielen zugemüllt/unübersichtlich.
 
