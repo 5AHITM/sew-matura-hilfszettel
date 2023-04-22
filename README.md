@@ -65,7 +65,7 @@ Für alle neue Änderungen in dem Repository muss ein neuer Branch erstellt werd
   - [UriInfo](#uriinfo)
   - [Repository without panache](#repository-without-panache)
   - [Relations example](#relations-example)
-  - [Eventbus](eventbus)
+  - [Eventbus](#eventbus)
   - [ChronoUnit](#chronounit)
   - [Encoder and Decoder](#encoder-and-decoder)
     - [GameWebsocket](#gamewebsocket)
