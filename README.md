@@ -375,34 +375,6 @@ public class Address {
 }
 ```
 
-### Table
-
-```java
-@Entity
-@TableGenerator(name = "addressGen", initialValue = 1000, allocationSize = 50)
-public class Address {
-  @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "addressGen")
-  public Long id;
-
-  public String street;
-}
-```
-
-### Sequence
-
-```java
-@Entity
-@SequenceGenerator(name = "addressSeq", initialValue = 1000, allocationSize = 50)
-public class Address {
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "addressSeq")
-  public Long id;
-
-  public String street;
-}
-```
-
 ### Embedded ID / Composite Key
 
 ```java
@@ -425,78 +397,6 @@ public class AddressId implements Serializable {
 }
 ```
 
-#### With Relations
-
-```java
-@Embeddable
-public class MembershipId implements Serializable {
-    @Column(name="ssid")
-    public long ssid;
-
-    @Column(name="club_id")
-    public long clubId;
-}
-```
-
-```java
-@Entity
-public class Membership extends PanacheEntityBase {
-
-    @EmbeddedId
-    public MembershipId membershipId;
-
-    @ManyToOne
-    @MapsId("ssid")
-    @JoinColumn(name = "ssid")
-    public Person person;
-
-    @ManyToOne
-    @MapsId("clubId")
-    @JoinColumn(name="club_Id")
-    public Club club;
-
-    @Column(name = "join_date")
-    public LocalDate joinDate;
-
-    @Column(name = "exit_date")
-    public LocalDate exitDate;
-}
-```
-
-```java
-@Entity
-public class Person extends PanacheEntityBase {
-    @Id
-    @GeneratedValue
-    public long ssid;
-
-    @Column(name = "first_name")
-    public String firstname;
-
-    @Column(name = "last_name")
-    public String lastname;
-
-    @OneToMany(mappedBy = "person")
-    @JsonIgnoreProperties({"person"})
-    List<Membership> memberships;
-}
-```
-
-```java
-@Entity
-public class Club extends PanacheEntityBase {
-    @Id
-    @GeneratedValue
-    public long id;
-
-    public String name;
-
-    @OneToMany(mappedBy = "club")
-    @JsonIgnoreProperties({"club"})
-    public List<Membership> memberships;
-}
-```
-
 ### Column
 
 ```java
@@ -510,25 +410,6 @@ public class Address {
   @ManyToOne
   Street street;
 }
-```
-
-### UriInfo
-
-```java
-@PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Transactional
-    public Response putEmployee(Employee employee, @Context UriInfo context) {
-        try {
-            Employee emp = repo.getEntityManager().merge(employee);
-            URI uri = context.getAbsolutePathBuilder().path(Long.toString(emp.id)).build();
-            return Response.created(uri).build();
-        }catch (Exception e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-    }
 ```
 
 ## Entity Relations
@@ -711,36 +592,7 @@ public class Address {
 }
 ```
 
-## Repository
-
-```java
-@ApplicationScoped
-public class AddressRepository {
-
-  @Inject
-  EntityManager em;
-
-  public Address save(Address address) {
-    if (address.getId() == null) {
-      em.persist(address);
-      return address;
-    } else {
-      return em.merge(address);
-    }
-  }
-
-  public Address findById(Long id) {
-    return em.find(Address.class, id);
-  }
-
-  public void deleteById(Long id) {
-    Address address = findById(id);
-    em.remove(address);
-  }
-}
-```
-
-### Queries
+## Queries
 
 ```java
 @ApplicationScoped
@@ -985,7 +837,7 @@ public class newWebsocketServer {
 ### Resource
 
 ```java
- @Path("websocketServer/{filialeName}")
+    @Path("websocketServer/{filialeName}")
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     public Response webSocketServer(@PathParam("filialeName") String name){
@@ -993,169 +845,6 @@ public class newWebsocketServer {
         return Response.ok().build();
     }
 ```
-
-### Eventbus
-
-```
-@Inject
-EventBus eventBus;
-
-eventBus.send("eventName", survey);
-
-// Funktion in ressource
-@ConsumeEvent("greeting")
-public String consume(String name){
-	// do something with name
-}
-```
-
-### ChronoUnit
-
-```java
-ChronoUnit.DAYS.between(startDate, endDate)
-```
-
-### Encoder and Decoder
-
-#### GameWebsocket
-
-```java
-@ServerEndpoint(value = "/quiz-game-websocket/{gameId}/{name}",
-        encoders = {GameEncoder.class})
-public class GameWebSocket {
-    public void onOpen(Session session, @PathParam("gameId") Long gameId, @PathParam("name") String name) {
-        ...
-
-        // Example for sending an object
-        session.getAsyncRemote().sendObject(GameMapper.INSTANCE.gameFromEntity(game));
-    }
-
-    @OnClose
-    public void onClose(Session session, @PathParam("gameId") Long gameId, @PathParam("name") String name) {
-        ...
-    }
-
-    @OnError
-    public void onError(Session session, @PathParam("gameId") Long gameId, @PathParam("name") String name, Throwable throwable) {
-        // Error Report
-        ...
-    }
-
-    @OnMessage
-    @Transactional
-    public void onMessage(String message,
-                          @PathParam("gameId") Long gameId,
-                          @PathParam("name") String name,
-                          Session session) {
-        GameDecoder decoder = new GameDecoder();
-        if (decoder.willDecode(message)) {
-            try {
-                handleAdmin(decoder.decode(message), gameId);
-            } catch (DecodeException e) {
-                throw new RuntimeException(e);
-            }
-            return;
-        }
-    }
-}
-```
-
-#### Mapstruct
-
-```java
-@Mapper
-public interface GameMapper {
-    GameMapper INSTANCE = Mappers.getMapper(GameMapper.class);
-
-    @Mapping(source = "users", target = "users", qualifiedByName = "usersListFromEntity")
-    @Mapping(source = "quiz", target = "quiz", qualifiedByName = "quizFromEntity")
-    Game gameFromEntity(GameEntity ge);
-
-    @Mapping(source = "users", target = "users", qualifiedByName = "usersListToEntity")
-    @Mapping(source = "quiz", target = "quiz", qualifiedByName = "quizToEntity")
-    GameEntity gameToEntity(Game g);
-
-
-    @Named("usersListFromEntity")
-    static List<User> usersListFromEntity(List<UserEntity> users) {
-        return users.stream().map(UserMapper.INSTANCE::userFromEntity).collect(Collectors.toList());
-    }
-
-    @Named("quizFromEntity")
-    static Quiz quizFromEntity(QuizEntity qe) {
-        return QuizMapper.INSTANCE.quizFromEntity(qe);
-    }
-
-    @Named("usersListToEntity")
-    static List<UserEntity> usersListToEntity(List<User> users) {
-        return users.stream().map(UserMapper.INSTANCE::userToEntity).collect(Collectors.toList());
-    }
-
-    @Named("quizToEntity")
-    static QuizEntity quizToEntity(Quiz q) {
-        return QuizMapper.INSTANCE.quizToEntity(q);
-    }
-}
-```
-
-#### Encoder
-
-```java
-public class GameEncoder implements Encoder.Text<Game> {
-
-    ObjectMapper objectMapper = new ObjectMapper();
-
-    @Override
-    public String encode(Game game) throws EncodeException {
-        try {
-            return objectMapper.writeValueAsString(game);
-        } catch (JsonProcessingException e) {
-            throw new EncodeException(game, e.getMessage());
-        }
-    }
-
-    @Override
-    public void init(EndpointConfig endpointConfig) {}
-
-    @Override
-    public void destroy() {}
-}
-```
-
-#### Decoder
-
-```java
-public class GameDecoder implements Decoder.Text<Game> {
-    ObjectMapper objectMapper = new ObjectMapper();
-
-    @Override
-    public Game decode(String s) throws DecodeException {
-        try {
-            return objectMapper.readValue(s, Game.class);
-        } catch (JsonProcessingException e) {
-            throw new DecodeException(s, e.getMessage());
-        }
-    }
-
-    @Override
-    public boolean willDecode(String s) {
-        try {
-            objectMapper.readValue(s, Game.class);
-        } catch (JsonProcessingException e) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void init(EndpointConfig endpointConfig) {}
-
-    @Override
-    public void destroy() {}
-}
-```
-
-
 
 
 # Advanced Angular Code Snippets
@@ -1647,4 +1336,317 @@ localDateTime.getMonth();
 private LocalDate bookingDate;
 @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 private LocalDateTime lastUpdate;
+```
+
+# Advanced Quarkus Code Snippets
+
+
+## Table
+
+```java
+@Entity
+@TableGenerator(name = "addressGen", initialValue = 1000, allocationSize = 50)
+public class Address {
+  @Id
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "addressGen")
+  public Long id;
+
+  public String street;
+}
+```
+
+## Sequence
+
+```java
+@Entity
+@SequenceGenerator(name = "addressSeq", initialValue = 1000, allocationSize = 50)
+public class Address {
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "addressSeq")
+  public Long id;
+
+  public String street;
+}
+```
+
+## UriInfo
+
+```java
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response putEmployee(Employee employee, @Context UriInfo context) {
+        try {
+            Employee emp = repo.getEntityManager().merge(employee);
+            URI uri = context.getAbsolutePathBuilder().path(Long.toString(emp.id)).build();
+            return Response.created(uri).build();
+        }catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+```
+
+## Repository without panache
+
+```java
+@ApplicationScoped
+public class AddressRepository {
+
+  @Inject
+  EntityManager em;
+
+  public Address save(Address address) {
+    if (address.getId() == null) {
+      em.persist(address);
+      return address;
+    } else {
+      return em.merge(address);
+    }
+  }
+
+  public Address findById(Long id) {
+    return em.find(Address.class, id);
+  }
+
+  public void deleteById(Long id) {
+    Address address = findById(id);
+    em.remove(address);
+  }
+}
+```
+
+## Relations example
+
+```java
+@Embeddable
+public class MembershipId implements Serializable {
+    @Column(name="ssid")
+    public long ssid;
+
+    @Column(name="club_id")
+    public long clubId;
+}
+```
+
+```java
+@Entity
+public class Membership extends PanacheEntityBase {
+
+    @EmbeddedId
+    public MembershipId membershipId;
+
+    @ManyToOne
+    @MapsId("ssid")
+    @JoinColumn(name = "ssid")
+    public Person person;
+
+    @ManyToOne
+    @MapsId("clubId")
+    @JoinColumn(name="club_Id")
+    public Club club;
+
+    @Column(name = "join_date")
+    public LocalDate joinDate;
+
+    @Column(name = "exit_date")
+    public LocalDate exitDate;
+}
+```
+
+```java
+@Entity
+public class Person extends PanacheEntityBase {
+    @Id
+    @GeneratedValue
+    public long ssid;
+
+    @Column(name = "first_name")
+    public String firstname;
+
+    @Column(name = "last_name")
+    public String lastname;
+
+    @OneToMany(mappedBy = "person")
+    @JsonIgnoreProperties({"person"})
+    List<Membership> memberships;
+}
+```
+
+```java
+@Entity
+public class Club extends PanacheEntityBase {
+    @Id
+    @GeneratedValue
+    public long id;
+
+    public String name;
+
+    @OneToMany(mappedBy = "club")
+    @JsonIgnoreProperties({"club"})
+    public List<Membership> memberships;
+}
+```
+
+
+## Eventbus
+
+```
+@Inject
+EventBus eventBus;
+
+eventBus.send("eventName", survey);
+
+// Funktion in ressource
+@ConsumeEvent("greeting")
+public String consume(String name){
+	// do something with name
+}
+```
+
+## ChronoUnit
+
+```java
+ChronoUnit.DAYS.between(startDate, endDate)
+```
+
+## Encoder and Decoder
+
+### GameWebsocket
+
+```java
+@ServerEndpoint(value = "/quiz-game-websocket/{gameId}/{name}",
+        encoders = {GameEncoder.class})
+public class GameWebSocket {
+    public void onOpen(Session session, @PathParam("gameId") Long gameId, @PathParam("name") String name) {
+        ...
+
+        // Example for sending an object
+        session.getAsyncRemote().sendObject(GameMapper.INSTANCE.gameFromEntity(game));
+    }
+
+    @OnClose
+    public void onClose(Session session, @PathParam("gameId") Long gameId, @PathParam("name") String name) {
+        ...
+    }
+
+    @OnError
+    public void onError(Session session, @PathParam("gameId") Long gameId, @PathParam("name") String name, Throwable throwable) {
+        // Error Report
+        ...
+    }
+
+    @OnMessage
+    @Transactional
+    public void onMessage(String message,
+                          @PathParam("gameId") Long gameId,
+                          @PathParam("name") String name,
+                          Session session) {
+        GameDecoder decoder = new GameDecoder();
+        if (decoder.willDecode(message)) {
+            try {
+                handleAdmin(decoder.decode(message), gameId);
+            } catch (DecodeException e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
+    }
+}
+```
+
+### Mapstruct
+
+```java
+@Mapper
+public interface GameMapper {
+    GameMapper INSTANCE = Mappers.getMapper(GameMapper.class);
+
+    @Mapping(source = "users", target = "users", qualifiedByName = "usersListFromEntity")
+    @Mapping(source = "quiz", target = "quiz", qualifiedByName = "quizFromEntity")
+    Game gameFromEntity(GameEntity ge);
+
+    @Mapping(source = "users", target = "users", qualifiedByName = "usersListToEntity")
+    @Mapping(source = "quiz", target = "quiz", qualifiedByName = "quizToEntity")
+    GameEntity gameToEntity(Game g);
+
+
+    @Named("usersListFromEntity")
+    static List<User> usersListFromEntity(List<UserEntity> users) {
+        return users.stream().map(UserMapper.INSTANCE::userFromEntity).collect(Collectors.toList());
+    }
+
+    @Named("quizFromEntity")
+    static Quiz quizFromEntity(QuizEntity qe) {
+        return QuizMapper.INSTANCE.quizFromEntity(qe);
+    }
+
+    @Named("usersListToEntity")
+    static List<UserEntity> usersListToEntity(List<User> users) {
+        return users.stream().map(UserMapper.INSTANCE::userToEntity).collect(Collectors.toList());
+    }
+
+    @Named("quizToEntity")
+    static QuizEntity quizToEntity(Quiz q) {
+        return QuizMapper.INSTANCE.quizToEntity(q);
+    }
+}
+```
+
+### Encoder
+
+```java
+public class GameEncoder implements Encoder.Text<Game> {
+
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public String encode(Game game) throws EncodeException {
+        try {
+            return objectMapper.writeValueAsString(game);
+        } catch (JsonProcessingException e) {
+            throw new EncodeException(game, e.getMessage());
+        }
+    }
+
+    @Override
+    public void init(EndpointConfig endpointConfig) {}
+
+    @Override
+    public void destroy() {}
+}
+```
+
+### Decoder
+
+```java
+public class GameDecoder implements Decoder.Text<Game> {
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public Game decode(String s) throws DecodeException {
+        try {
+            return objectMapper.readValue(s, Game.class);
+        } catch (JsonProcessingException e) {
+            throw new DecodeException(s, e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean willDecode(String s) {
+        try {
+            objectMapper.readValue(s, Game.class);
+        } catch (JsonProcessingException e) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void init(EndpointConfig endpointConfig) {}
+
+    @Override
+    public void destroy() {}
+}
 ```
