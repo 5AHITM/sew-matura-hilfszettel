@@ -10,42 +10,17 @@ Für alle neue Änderungen in dem Repository muss ein neuer Branch erstellt werd
   - [Bindings](#bindings)
   - [Direktiven](#direktiven)
   - [Components Databinding](#components-databinding)
-  - [Services](#services)
   - [Routing](#routing)
     - [Konfiguration](#konfiguration)
     - [Verwendung](#verwendung)
-  - [Observable](#observable)
-    - [Subject](#subject)
-  - [Forms](#forms)
-    - [Template Driven](#template-driven)
-    - [Reactive](#reactive)
-  - [Pipes](#pipes)
-  - [Angular-Material](#angular-material)
-    - [MatInput](#matinput)
-    - [SnackBar](#snackbar)
-    - [Table](#table)
-    - [List](#list)
-  - [Date-API](#date-api)
-    - [LocalDate](#localdate)
-    - [LocalDateTime](#localdatetime)
-    - [DateFormat](#dateformat)
-  - [HTML-Zusatz](#html-zusatz)
-    - [Select](#select)
-    - [DTO in .ts](#dto-in-ts)
   - [HTTP](#http)
     - [Usage](#usage)
   - [Websockets](#websockets)
-  - [AuthGuard](#authguard)
-  - [Interceptors](#interceptors)
 - [Quarkus](#quarkus)
   - [Entities and ID Generation](#entities-and-id-generation)
     - [Autoincrement](#autoincrement)
-    - [Table](#table)
-    - [Sequence](#sequence)
     - [Embedded ID / Composite Key](#embedded-id--composite-key)
-      - [With Relations](#with-relations)
     - [Column](#column)
-    - [UriInfo](#uriinfo)
   - [Entity Relations](#entity-relations)
     - [One to One](#one-to-one)
     - [One to Many](#one-to-many)
@@ -53,7 +28,7 @@ Für alle neue Änderungen in dem Repository muss ein neuer Branch erstellt werd
     - [Self reference](#self-reference)
     - [Many to Many](#many-to-many)
     - [Fetching](#fetching)
-  - [Repository](#repository)
+  - [Repository](#Repository)
     - [Queries](#queries)
   - [Panache](#panache)
     - [Entity](#entity)
@@ -63,11 +38,40 @@ Für alle neue Änderungen in dem Repository muss ein neuer Branch erstellt werd
   - [Resource](#resource)
   - [Websocket](#websocket)
     - [WebSocketServer](#websocketserver)
-    - [Encoder and Decoder](#encoder-and-decoder)
-      - [GameWebsocket](#gamewebsocket)
-      - [Mapstruct](#mapstruct)
-      - [Encoder](#encoder)
-      - [Decoder](#decoder)
+    - [Resource](#resource-with-websockets)
+- [Advanced Angular Code Snippets](#advanced-angular-code-snippets)
+  - [Observable](#observable)
+  - [Subject](#subject)
+  - [Interceptors](#interceptors-usually-only-needed-for-auth-guard)
+  - [HTML-Zusatz](#html-zusatz)
+    - [Select](#select)
+    - [DTO in .ts](#dto-in-ts)
+  - [Angular Material](#angular-material)
+    - [MatInput](#matinput)
+    - [Snackbar](#snackbar)
+    - [Table](#table)
+    - [List](#list)
+  - [Forms](#forms)
+    - [Template Driven](#template-driven)
+    - [Reactive](#reactive)
+  - [Pipes](#pipes)
+  - [Date-API](#date-api)
+    - [LocalDate](#localdate)
+    - [LocalDateTime](#localdatetime)
+    - [DateFormat](#dateformat)
+- [Advanced Quarkus Code Snippets](#advanced-quarkus-code-snippets)
+  - [Table](#table)
+  - [Sequence](#sequence)
+  - [UriInfo](#uriinfo)
+  - [Repository without panache](#repository-without-panache)
+  - [Relations example](#relations-example)
+  - [Eventbus](eventbus)
+  - [ChronoUnit](#chronounit)
+  - [Encoder and Decoder](#encoder-and-decoder)
+    - [GameWebsocket](#gamewebsocket)
+    - [Mapstruct](#mapstruct)
+    - [Encoder](#encoder)
+    - [Decoder](#decoder)
 
 # Angular
 
@@ -592,7 +596,9 @@ public class Address {
 }
 ```
 
-## Queries
+## Repository
+
+### Queries
 
 ```java
 @ApplicationScoped
@@ -834,7 +840,7 @@ public class newWebsocketServer {
 
 ```
 
-### Resource
+### Resource with websockets
 
 ```java
     @Path("websocketServer/{filialeName}")
