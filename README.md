@@ -1,5 +1,6 @@
 # sew-matura-hilfszettel
 
+
 ## Hinweis zum Bearbeiten des Zettels:
 Für alle neue Änderungen in dem Repository muss ein neuer Branch erstellt werden und die Änderungen per Pull Request auf den Main Branch gemerged werden. Um unnötige Code Abschnitte die niemand benötigt, im Skript zu vermeiden, müssen dem Pull Request mindestens 2 andere zustimmen -> Zettel wird nicht mit unnötigen Beispielen zugemüllt/unübersichtlich.
 
@@ -9,42 +10,17 @@ Für alle neue Änderungen in dem Repository muss ein neuer Branch erstellt werd
   - [Bindings](#bindings)
   - [Direktiven](#direktiven)
   - [Components Databinding](#components-databinding)
-  - [Services](#services)
   - [Routing](#routing)
     - [Konfiguration](#konfiguration)
     - [Verwendung](#verwendung)
-  - [Observable](#observable)
-    - [Subject](#subject)
-  - [Forms](#forms)
-    - [Template Driven](#template-driven)
-    - [Reactive](#reactive)
-  - [Pipes](#pipes)
-  - [Angular-Material](#angular-material)
-    - [MatInput](#matinput)
-    - [SnackBar](#snackbar)
-    - [Table](#table)
-    - [List](#list)
-  - [Date-API](#date-api)
-    - [LocalDate](#localdate)
-    - [LocalDateTime](#localdatetime)
-    - [DateFormat](#dateformat)
-  - [HTML-Zusatz](#html-zusatz)
-    - [Select](#select)
-    - [DTO in .ts](#dto-in-ts)
   - [HTTP](#http)
     - [Usage](#usage)
   - [Websockets](#websockets)
-  - [AuthGuard](#authguard)
-  - [Interceptors](#interceptors)
 - [Quarkus](#quarkus)
   - [Entities and ID Generation](#entities-and-id-generation)
     - [Autoincrement](#autoincrement)
-    - [Table](#table)
-    - [Sequence](#sequence)
     - [Embedded ID / Composite Key](#embedded-id--composite-key)
-      - [With Relations](#with-relations)
     - [Column](#column)
-    - [UriInfo](#uriinfo)
   - [Entity Relations](#entity-relations)
     - [One to One](#one-to-one)
     - [One to Many](#one-to-many)
@@ -52,7 +28,7 @@ Für alle neue Änderungen in dem Repository muss ein neuer Branch erstellt werd
     - [Self reference](#self-reference)
     - [Many to Many](#many-to-many)
     - [Fetching](#fetching)
-  - [Repository](#repository)
+  - [Repository](#Repository)
     - [Queries](#queries)
   - [Panache](#panache)
     - [Entity](#entity)
@@ -62,11 +38,40 @@ Für alle neue Änderungen in dem Repository muss ein neuer Branch erstellt werd
   - [Resource](#resource)
   - [Websocket](#websocket)
     - [WebSocketServer](#websocketserver)
-    - [Encoder and Decoder](#encoder-and-decoder)
-      - [GameWebsocket](#gamewebsocket)
-      - [Mapstruct](#mapstruct)
-      - [Encoder](#encoder)
-      - [Decoder](#decoder)
+    - [Resource](#resource-with-websockets)
+- [Advanced Angular Code Snippets](#advanced-angular-code-snippets)
+  - [Observable](#observable)
+  - [Subject](#subject)
+  - [Interceptors](#interceptors-usually-only-needed-for-auth-guard)
+  - [HTML-Zusatz](#html-zusatz)
+    - [Select](#select)
+    - [DTO in .ts](#dto-in-ts)
+  - [Angular Material](#angular-material)
+    - [MatInput](#matinput)
+    - [Snackbar](#snackbar)
+    - [Table](#table)
+    - [List](#list)
+  - [Forms](#forms)
+    - [Template Driven](#template-driven)
+    - [Reactive](#reactive)
+  - [Pipes](#pipes)
+  - [Date-API](#date-api)
+    - [LocalDate](#localdate)
+    - [LocalDateTime](#localdatetime)
+    - [DateFormat](#dateformat)
+- [Advanced Quarkus Code Snippets](#advanced-quarkus-code-snippets)
+  - [Table](#table)
+  - [Sequence](#sequence)
+  - [UriInfo](#uriinfo)
+  - [Repository without panache](#repository-without-panache)
+  - [Relations example](#relations-example)
+  - [Eventbus](#eventbus)
+  - [ChronoUnit](#chronounit)
+  - [Encoder and Decoder](#encoder-and-decoder)
+    - [GameWebsocket](#gamewebsocket)
+    - [Mapstruct](#mapstruct)
+    - [Encoder](#encoder)
+    - [Decoder](#decoder)
 
 # Angular
 
@@ -93,7 +98,7 @@ export class AppComponent {
 
 ```html
 <p *ngIf="name !== ''">Hello {{ name }}</p>
-<p [ngStyle]="color: getColor()" [ngClass]="{type: getTextType()}"></p>
+<p [ngStyle]="{'color': getColor()}" [ngClass]="{type: getTextType()}"></p>
 <ul>
   <li *ngFor="let user of users; let i = index">{{ i }} - {{ user }}</li>
 </ul>
@@ -168,32 +173,6 @@ console.log(pTag.innerHTML);
 }
 ```
 
-## Services
-
-```tsx
-export class LoggingService() {
-	public logStatus(status: string) {
-		console.log(status);
-	}
-}
-
- getMembersByClub(clubId: number){
-    return this.http.get<Person[]>("http://localhost:8081/api/club/members/" + clubId);
-  }
-
-  addMember(membershipDTO:MembershipDTO){
-    return this.http.post(this.url + "/membership/add", membershipDTO);
-  }
-```
-
-```tsx
-constructor(private service: LoggingService) {}
-
-onStatusChange(status: string) {
-	this.service.logStatus(status);
-}
-```
-
 ## Routing
 
 ### Konfiguration
@@ -206,14 +185,14 @@ const appRoutes: Routes = [
 	{ path: '**', component: TableComponent},
 	{ path: '', redirectTo: '/chat-list', pathMatch: 'full' },
 ];
+```
 
-...
+```
 imports: [
 	BrowserModule,
 	FormsModule,
 	RouterModule.forRoot(appRoutes)
 ]
-...
 ```
 
 ### Verwendung
@@ -253,459 +232,6 @@ export class TextComponent implements OnInit {
 }
 ```
 
-## Observable
-
-```tsx
-export class AppComponent implements OnInit, OnDestroy {
-  myObsSubscription: Subscription;
-
-  ngOnInit() {
-    const myObservable = Observable.create((observer: Observer<string>) => {
-      setTimeout(() => {
-        observer.next("first package");
-      }, 2000);
-      setTimeout(() => {
-        observer.next("second package");
-      }, 4000);
-      setTimeout(() => {
-        observer.error("this does not work");
-      }, 5000);
-    });
-
-    this.myObsSubscription = myObservable.subscribe(
-      (data: string) => {
-        console.log(data);
-      },
-      (error: string) => {
-        console.log(error);
-      },
-      () => {
-        console.log("completed");
-      }
-    );
-  }
-
-  ngOnDestroy() {
-    this.myObsSubscription.unsubscribe();
-  }
-}
-```
-
-### Subject
-
-```tsx
-export class SearchService {
-  searchSubject = new Subject<string>();
-
-  constructor() {}
-
-  search(term: string) {
-    this.searchSubject.next(term);
-  }
-}
-```
-
-```tsx
-export class Comp1Component implements OnInit {
-  constructor(private searchService: SearchService) {}
-
-  ngOnInit() {}
-
-  search(term: HTMLInputElement) {
-    this.searchService.search(term.value);
-  }
-}
-```
-
-```tsx
-export class Comp2Component implements OnInit {
-  searchSubscription: Subscription;
-
-  constructor(private searchService: SearchService) {}
-
-  ngOnInit() {
-    this.searchSubscription = this.searchService.searchSubject.subscribe(
-      (data: string) => {
-        console.log(data);
-      }
-    );
-  }
-
-  ngOnDestroy() {
-    this.searchSubscription.unsubscribe();
-  }
-}
-```
-
-## Forms
-
-### Template Driven
-
-```html
-<form (ngSubmit)="onSubmit(f)" #f="ngForm">
-  <div class="form-group">
-    <label for="username">Username</label>
-    <input
-      type="text"
-      id="username"
-      class="form-control"
-      name="username"
-      ngModel
-      required
-    />
-  </div>
-  <div class="form-group">
-    <label for="email">Email</label>
-    <input
-      type="email"
-      id="email"
-      class="form-control"
-      name="email"
-      ngModel
-      required
-      email
-      #email="ngModel"
-    />
-    <span class="help-block" *ngIf="!email.valid && email.touched">
-      Please enter a valid email address!
-    </span>
-  </div>
-
-  <button type="submit" class="btn btn-primary" [disabled]="!f.valid">
-    Submit
-  </button>
-</form>
-```
-
-```tsx
-export class AppComponent {
-  onSubmit(form: NgForm) {
-    console.log(form.value.username);
-  }
-}
-```
-
-### Reactive
-
-// ng generate @angular/material:table/menu/address-form/navigation/dashboard name
-
-```html
-<form [formGroup]="regForm">
-  <div class="form-group">
-    <label for="username">Username</label>
-    <input
-      type="text"
-      id="username"
-      class="form-control"
-      formControlName="username"
-    />
-    <span
-      *ngIf="!regForm.get('username').valid && regForm.get('username').touched"
-      class="help-block"
-    >
-      Please enter a valid username!
-    </span>
-  </div>
-  <div class="form-group">
-    <label for="email">Email</label>
-    <input
-      type="email"
-      id="email"
-      class="form-control"
-      formControlName="email"
-    />
-    <span
-      *ngIf="!regForm.get('email').valid && regForm.get('email').touched"
-      class="help-block"
-    >
-      Please enter a valid email address!
-    </span>
-  </div>
-
-  <button
-    type="submit"
-    class="btn btn-primary"
-    (click)="onSubmit()"
-    [disabled]="!regForm.valid"
-  >
-    Submit
-  </button>
-</form>
-```
-
-```tsx
-export class AppComponent implements OnInit {
-  regForm: FormGroup;
-
-  ngOnInit() {
-    this.regForm = new FormGroup({
-      username: new FormControl(null, Validators.required),
-      email: new FormControl(null, [Validators.required, Validators.email]),
-    });
-  }
-
-  onSubmit() {
-    console.log(this.regForm.value);
-  }
-}
-```
-
-## Pipes
-
-```
-<td mat-cell *matCellDef="let element">{{element.endTs |date: 'dd.MM.yyyy
-hh:mm:ss' }}</td>
-{{auction.startingPrice | currency}}
-{{auction.startingPrice | currency:'EUR'}}
-```
-
-## Angular-Material
-
-```
-ng add @angular/material
-ng generate @angular/material:table Table
-
-weitere generierbare Materials:
-menu
-address-form
-navigation
-dashboard
-```
-
-### MatInput
-
-```html
-<mat-form-field appearance="fill">
-  <mat-label>Enter your email</mat-label>
-  <input
-    matInput
-    placeholder="pat@example.com"
-    [formControl]="email"
-    required
-  />
-  <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
-  <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
-  <mat-hint>Hint</mat-hint>
-</mat-form-field>
-<mat-form-field appearance="fill">
-  <mat-label>Select</mat-label>
-  <mat-select>
-    <mat-option value="one">First option</mat-option>
-    <mat-option value="two">Second option</mat-option>
-  </mat-select>
-</mat-form-field>
-<mat-form-field appearance="fill">
-  <mat-label>Textarea</mat-label>
-  <textarea matInput></textarea>
-</mat-form-field>
-```
-
-```ts
-  email = new FormControl('', [Validators.required, Validators.email]);
-
-  getErrorMessage() {
-    if (this.email.hasError('required')) {
-      return 'You must enter a value';
-    }
-
-    return this.email.hasError('email') ? 'Not a valid email' : '';
-  }
-```
-
-### SnackBar
-
-```ts
-export class SnackBarOverviewExample {
-  constructor(private snackBar: MatSnackBar) {}
-
-  openSnackBar(message: string, action: string) {
-    // message and action with config => action can be undefined if none is required
-    this.snackBar.open(message, action, {
-      duration: 3000,
-    });
-
-    // snackbar with own component providing data
-    let snackBarRef = this.snackBar.openFromComponent(
-      MessageArchivedComponent,
-      {
-        data: "some data",
-      }
-    );
-  }
-}
-```
-
-```ts
-export class MessageArchivedComponent {
-  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: string) {}
-}
-```
-
-### Table
-
-```html
-<div class="mat-elevation-z8">
-  <table mat-table [dataSource]="dataSource">
-    <!-- Position Column -->
-    <ng-container matColumnDef="position">
-      <th mat-header-cell *matHeaderCellDef>No.</th>
-      <td mat-cell *matCellDef="let element">{{element.position}}</td>
-    </ng-container>
-
-    <!-- Name Column -->
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Name</th>
-      <td mat-cell *matCellDef="let element">{{element.name}}</td>
-    </ng-container>
-
-    <!-- Weight Column -->
-    <ng-container matColumnDef="weight">
-      <th mat-header-cell *matHeaderCellDef>Weight</th>
-      <td mat-cell *matCellDef="let element">{{element.weight}}</td>
-    </ng-container>
-
-    <!-- Symbol Column -->
-    <ng-container matColumnDef="symbol">
-      <th mat-header-cell *matHeaderCellDef>Symbol</th>
-      <td mat-cell *matCellDef="let element">{{element.symbol}}</td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-
-  <mat-paginator
-    [pageSizeOptions]="[5, 10, 20]"
-    showFirstLastButtons
-    aria-label="Select page of periodic elements"
-  >
-  </mat-paginator>
-</div>
-```
-
-```ts
-export class TablePaginationExample implements AfterViewInit {
-  displayedColumns: string[] = ["position", "name", "weight", "symbol"];
-  dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
-
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-  }
-}
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: "Hydrogen", weight: 1.0079, symbol: "H" },
-  { position: 2, name: "Helium", weight: 4.0026, symbol: "He" },
-  { position: 3, name: "Lithium", weight: 6.941, symbol: "Li" },
-];
-```
-
-```html
-<!-- Sorting -->
-<table
-  mat-table
-  [dataSource]="dataSource"
-  matSort
-  (matSortChange)="announceSortChange($event)"
->
-  <ng-container matColumnDef="position">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-    <td mat-cell *matCellDef="let element">{{element.position}}</td>
-  </ng-container>
-
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-</table>
-```
-
-### List
-
-```html
-<mat-list>
-  <mat-list-item>
-    <span matListItemTitle>Pepper</span>
-    <span matListItemLine>Produced by a plant</span>
-  </mat-list-item>
-  <mat-list-item>
-    <span matListItemTitle>Salt</span>
-    <span matListItemLine>Extracted from sea water</span>
-  </mat-list-item>
-  <mat-list-item>
-    <span matListItemTitle>Paprika</span>
-    <span matListItemLine>Produced by dried and ground red peppers</span>
-  </mat-list-item>
-</mat-list>
-```
-
-## Date-API
-
-### LocalDate
-
-```
-LocalDate localDate=LocalDate.now();
-LocalDate.of(2015,02,20);
-LocalDate.parse("2015-02-20");
-LocalDate tomorrow=LocalDate.now().plusDays(1);
-LocalDate previousMonthSameDay=LocalDate.now().minus(1,ChronoUnit.MONTHS);
-DayOfWeek sunday = LocalDate.parse("2016-06-12").getDayOfWeek();
-int twelve = LocalDate.parse("2016-06-12").getDayOfMonth();
-boolean leapYear=LocalDate.now().isLeapYear();
-boolean notBefore = LocalDate.parse("2016-06-12").isBefore(LocalDate.parse("2016-06-11"));
-boolean isAfter = LocalDate.parse("2016-06-12").isAfter(LocalDate.parse("2016-06-11"));
-LocalDateTime beginningOfDay = LocalDate.parse("2016-06-12").atStartOfDay();
-LocalDate firstDayOfMonth = LocalDate.parse("2016-06-12").with(TemporalAdjusters.firstDayOfMonth());
-```
-
-### LocalDateTime
-
-```
-LocalDateTime.now();
-LocalDateTime.of(2015,Month.FEBRUARY,20,06,30);
-LocalDateTime.parse("2015-02-20T06:30:00");
-localDateTime.plusDays(1);
-localDateTime.minusHours(2);
-localDateTime.getMonth();
-```
-
-### DateFormat
-
-```
-@JsonbDateFormat(value = "yyyy-MM-dd")
-@Column(name = "BOOKINGDATE")
-private LocalDate bookingDate;
-@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-private LocalDateTime lastUpdate;
-```
-
-## HTML-Zusatz
-
-### Select
-
-```
- <select  [(ngModel)]="selectedLevel" (change)="selected()" id="startSelect">
-    <option *ngFor="let i of listOfObjects" value="{{i.start}}">{{i.start}}</option>
-</select>
-```
-
-### DTO in .ts
-
-```
- let coursePlanPersonDTO: CoursePlanPersonDTO = {
-      planId: parseInt(this.inputString),
-      firstname: this.firstName,
-      lastname: this.lastName
-    }
-```
-
 ## HTTP
 
 ```tsx
@@ -730,35 +256,8 @@ export class PostService {
     return this.http.get<Course[]>(this.url + "course/search/" + searchWord);
   }
 
-  getCourseById(id: string): Observable<Course> {
-    return this.http.get<Course>(this.url + "course/" + id);
-  }
-
-  getCoursePlanByCourseId(courseId: string): Observable<CoursePlan[]> {
-    return this.http.get<CoursePlan[]>(this.url + "course/plan/" + courseId);
-  }
-
   register(coursePlanPersonDTO: CoursePlanPersonDTO): Observable<any> {
-    console.log(coursePlanPersonDTO);
     return this.http.post(this.url + "course/plan1", coursePlanPersonDTO);
-  }
-
-  createAndStorePost(title: string, content: string) {
-    const postData: Post = { title: title, content: content };
-    this.http
-      .post<{ name: string }>(
-        "https://ng-complete-guide-6f4f5.firebaseio.com/posts.json",
-        postData
-      )
-      .subscribe((responseData) => {
-        console.log(responseData);
-      });
-  }
-
-  fetchPosts() {
-    this.http.get<Post>(
-      "https://ng-complete-guide-6f4f5.firebaseio.com/posts.json"
-    );
   }
 
   fetchPostsWithHeaders() {
@@ -830,14 +329,7 @@ export class WebSocketService implements OnInit {
   public data: Survey = new Survey();
 
   ngOnInit() {
-    this.myWebSocket = new WebSocketSubject("ws://localhost:8080/ws");
-    this.myWebSocket.asObservable().subscribe(
-      (msg: Message) => console.log("message received: " + msg),
-      (err: Event) => console.log("error: " + err),
-      () => console.log("complete")
-    );
-
-    // andere Version
+    // Einfache Variante
     this.myWebSocket = webSocket({
       url: "ws://localhost:8081/survey",
       deserializer: (msg) => msg.data,
@@ -846,19 +338,18 @@ export class WebSocketService implements OnInit {
     this.myWebSocket.subscribe((value) => {
       let json = JSON.parse(value.toString());
       console.log(json);
-      this.data.text = json.text;
-      this.data.result = new Map(
-        Object.keys(json.result).map((key) => [key, json.result[key]])
-      );
 
       // oder für einfache Messages ohne JSON
-      this.messages.push(msg); //messages: string[] = []
+      console.log(value.toString());
     });
-  }
-  public vote(option: string) {
-    this.httpClient
-      .post("http://localhost:8081/survey/vote/" + option + "/true", {})
-      .subscribe();
+    
+    // Alternative Variante    
+    this.myWebSocket = new WebSocketSubject("ws://localhost:8080/ws");
+    this.myWebSocket.asObservable().subscribe(
+      (msg: Message) => console.log("message received: " + msg),
+      (err: Event) => console.log("error: " + err),
+      () => console.log("complete")
+    );
   }
 
   sendMessage(msg: Message) {
@@ -869,71 +360,6 @@ export class WebSocketService implements OnInit {
     this.myWebSocket.complete();
   }
 }
-```
-
-## AuthGuard
-
-```ts
-@Injectable({
-  providedIn: "root",
-})
-export class AuthGuardService {
-  constructor(private authService: AuthService, private router: Router) {}
-
-  canActivate(): boolean {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(["auth"]);
-      return false;
-    }
-    return true;
-  }
-}
-```
-
-`routing`
-
-```ts
-const routes: Routes = [
-  { path: "home", component: HomeComponent, canActivate: [AuthGuardService] },
-  { path: "auth", component: AuthComponent },
-  { path: "**", redirectTo: "home" },
-];
-```
-
-## Interceptors
-
-```ts
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
-  constructor() {}
-
-  intercept(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-    const idToken = sessionStorage.getItem("id_token");
-    if (idToken) {
-      const cloned = req.clone({
-        headers: req.headers.set("Authorization", "Bearer " + idToken),
-      });
-      return next.handle(cloned);
-    } else {
-      return next.handle(req);
-    }
-  }
-}
-```
-
-`app.module.ts`
-
-```ts
-providers: [
-  {
-    provide: HTTP_INTERCEPTORS,
-    useClass: AuthInterceptor,
-    multi: true,
-  },
-];
 ```
 
 # Quarkus
@@ -948,34 +374,6 @@ public class Address {
   @Id
   @GeneratedValue()
   public Long id; // Für alle Entities: entweder public oder private mit Getter & Setter
-
-  public String street;
-}
-```
-
-### Table
-
-```java
-@Entity
-@TableGenerator(name = "addressGen", initialValue = 1000, allocationSize = 50)
-public class Address {
-  @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "addressGen")
-  public Long id;
-
-  public String street;
-}
-```
-
-### Sequence
-
-```java
-@Entity
-@SequenceGenerator(name = "addressSeq", initialValue = 1000, allocationSize = 50)
-public class Address {
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "addressSeq")
-  public Long id;
 
   public String street;
 }
@@ -1003,78 +401,6 @@ public class AddressId implements Serializable {
 }
 ```
 
-#### With Relations
-
-```java
-@Embeddable
-public class MembershipId implements Serializable {
-    @Column(name="ssid")
-    public long ssid;
-
-    @Column(name="club_id")
-    public long clubId;
-}
-```
-
-```java
-@Entity
-public class Membership extends PanacheEntityBase {
-
-    @EmbeddedId
-    public MembershipId membershipId;
-
-    @ManyToOne
-    @MapsId("ssid")
-    @JoinColumn(name = "ssid")
-    public Person person;
-
-    @ManyToOne
-    @MapsId("clubId")
-    @JoinColumn(name="club_Id")
-    public Club club;
-
-    @Column(name = "join_date")
-    public LocalDate joinDate;
-
-    @Column(name = "exit_date")
-    public LocalDate exitDate;
-}
-```
-
-```java
-@Entity
-public class Person extends PanacheEntityBase {
-    @Id
-    @GeneratedValue
-    public long ssid;
-
-    @Column(name = "first_name")
-    public String firstname;
-
-    @Column(name = "last_name")
-    public String lastname;
-
-    @OneToMany(mappedBy = "person")
-    @JsonIgnoreProperties({"person"})
-    List<Membership> memberships;
-}
-```
-
-```java
-@Entity
-public class Club extends PanacheEntityBase {
-    @Id
-    @GeneratedValue
-    public long id;
-
-    public String name;
-
-    @OneToMany(mappedBy = "club")
-    @JsonIgnoreProperties({"club"})
-    public List<Membership> memberships;
-}
-```
-
 ### Column
 
 ```java
@@ -1088,25 +414,6 @@ public class Address {
   @ManyToOne
   Street street;
 }
-```
-
-### UriInfo
-
-```java
-@PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Transactional
-    public Response putEmployee(Employee employee, @Context UriInfo context) {
-        try {
-            Employee emp = repo.getEntityManager().merge(employee);
-            URI uri = context.getAbsolutePathBuilder().path(Long.toString(emp.id)).build();
-            return Response.created(uri).build();
-        }catch (Exception e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-    }
 ```
 
 ## Entity Relations
@@ -1290,33 +597,6 @@ public class Address {
 ```
 
 ## Repository
-
-```java
-@ApplicationScoped
-public class AddressRepository {
-
-  @Inject
-  EntityManager em;
-
-  public Address save(Address address) {
-    if (address.getId() == null) {
-      em.persist(address);
-      return address;
-    } else {
-      return em.merge(address);
-    }
-  }
-
-  public Address findById(Long id) {
-    return em.find(Address.class, id);
-  }
-
-  public void deleteById(Long id) {
-    Address address = findById(id);
-    em.remove(address);
-  }
-}
-```
 
 ### Queries
 
@@ -1560,10 +840,10 @@ public class newWebsocketServer {
 
 ```
 
-### Resource
+### Resource with websockets
 
 ```java
- @Path("websocketServer/{filialeName}")
+    @Path("websocketServer/{filialeName}")
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     public Response webSocketServer(@PathParam("filialeName") String name){
@@ -1572,7 +852,651 @@ public class newWebsocketServer {
     }
 ```
 
-### Eventbus
+
+# Advanced Angular Code Snippets
+
+## Observable
+
+```tsx
+export class AppComponent implements OnInit, OnDestroy {
+  myObsSubscription: Subscription;
+
+  ngOnInit() {
+    const myObservable = Observable.create((observer: Observer<string>) => {
+      setTimeout(() => {
+        observer.next("first package");
+      }, 2000);
+      setTimeout(() => {
+        observer.next("second package");
+      }, 4000);
+      setTimeout(() => {
+        observer.error("this does not work");
+      }, 5000);
+    });
+
+    this.myObsSubscription = myObservable.subscribe(
+      (data: string) => {
+        console.log(data);
+      },
+      (error: string) => {
+        console.log(error);
+      },
+      () => {
+        console.log("completed");
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    this.myObsSubscription.unsubscribe();
+  }
+}
+```
+
+## Subject
+
+```tsx
+export class SearchService {
+  searchSubject = new Subject<string>();
+
+  constructor() {}
+
+  search(term: string) {
+    this.searchSubject.next(term);
+  }
+}
+```
+
+```tsx
+export class Comp1Component implements OnInit {
+  constructor(private searchService: SearchService) {}
+
+  ngOnInit() {}
+
+  search(term: HTMLInputElement) {
+    this.searchService.search(term.value);
+  }
+}
+```
+
+```tsx
+export class Comp2Component implements OnInit {
+  searchSubscription: Subscription;
+
+  constructor(private searchService: SearchService) {}
+
+  ngOnInit() {
+    this.searchSubscription = this.searchService.searchSubject.subscribe(
+      (data: string) => {
+        console.log(data);
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    this.searchSubscription.unsubscribe();
+  }
+}
+```
+## Interceptors (usually only needed for auth guard)
+
+```ts
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+  constructor() {}
+
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
+    const idToken = sessionStorage.getItem("id_token");
+    if (idToken) {
+      const cloned = req.clone({
+        headers: req.headers.set("Authorization", "Bearer " + idToken),
+      });
+      return next.handle(cloned);
+    } else {
+      return next.handle(req);
+    }
+  }
+}
+```
+
+`app.module.ts`
+
+```ts
+providers: [
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: AuthInterceptor,
+    multi: true,
+  },
+];
+```
+
+## HTML-Zusatz
+
+### Select
+
+```
+ <select  [(ngModel)]="selectedLevel" (change)="selected()" id="startSelect">
+    <option *ngFor="let i of listOfObjects" value="{{i.start}}">{{i.start}}</option>
+</select>
+```
+
+### DTO in .ts
+
+```
+ let coursePlanPersonDTO: CoursePlanPersonDTO = {
+      planId: parseInt(this.inputString),
+      firstname: this.firstName,
+      lastname: this.lastName
+    }
+```
+
+
+## Angular-Material
+
+```
+ng add @angular/material
+ng generate @angular/material:table Table
+
+weitere generierbare Materials:
+menu
+address-form
+navigation
+dashboard
+```
+
+### MatInput
+
+```html
+<mat-form-field appearance="fill">
+  <mat-label>Enter your email</mat-label>
+  <input
+    matInput
+    placeholder="pat@example.com"
+    [formControl]="email"
+    required
+  />
+  <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
+  <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
+  <mat-hint>Hint</mat-hint>
+</mat-form-field>
+<mat-form-field appearance="fill">
+  <mat-label>Select</mat-label>
+  <mat-select>
+    <mat-option value="one">First option</mat-option>
+    <mat-option value="two">Second option</mat-option>
+  </mat-select>
+</mat-form-field>
+<mat-form-field appearance="fill">
+  <mat-label>Textarea</mat-label>
+  <textarea matInput></textarea>
+</mat-form-field>
+```
+
+```ts
+  email = new FormControl('', [Validators.required, Validators.email]);
+
+  getErrorMessage() {
+    if (this.email.hasError('required')) {
+      return 'You must enter a value';
+    }
+
+    return this.email.hasError('email') ? 'Not a valid email' : '';
+  }
+```
+
+### SnackBar
+
+```ts
+export class SnackBarOverviewExample {
+  constructor(private snackBar: MatSnackBar) {}
+
+  openSnackBar(message: string, action: string) {
+    // message and action with config => action can be undefined if none is required
+    this.snackBar.open(message, action, {
+      duration: 3000,
+    });
+
+    // snackbar with own component providing data
+    let snackBarRef = this.snackBar.openFromComponent(
+      MessageArchivedComponent,
+      {
+        data: "some data",
+      }
+    );
+  }
+}
+```
+
+```ts
+export class MessageArchivedComponent {
+  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: string) {}
+}
+```
+
+### Table
+
+```html
+<div class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource">
+    <!-- Position Column -->
+    <ng-container matColumnDef="position">
+      <th mat-header-cell *matHeaderCellDef>No.</th>
+      <td mat-cell *matCellDef="let element">{{element.position}}</td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let element">{{element.name}}</td>
+    </ng-container>
+
+    <!-- Weight Column -->
+    <ng-container matColumnDef="weight">
+      <th mat-header-cell *matHeaderCellDef>Weight</th>
+      <td mat-cell *matCellDef="let element">{{element.weight}}</td>
+    </ng-container>
+
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="symbol">
+      <th mat-header-cell *matHeaderCellDef>Symbol</th>
+      <td mat-cell *matCellDef="let element">{{element.symbol}}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <mat-paginator
+    [pageSizeOptions]="[5, 10, 20]"
+    showFirstLastButtons
+    aria-label="Select page of periodic elements"
+  >
+  </mat-paginator>
+</div>
+```
+
+```ts
+export class TablePaginationExample implements AfterViewInit {
+  displayedColumns: string[] = ["position", "name", "weight", "symbol"];
+  dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+  }
+}
+
+export interface PeriodicElement {
+  name: string;
+  position: number;
+  weight: number;
+  symbol: string;
+}
+
+const ELEMENT_DATA: PeriodicElement[] = [
+  { position: 1, name: "Hydrogen", weight: 1.0079, symbol: "H" },
+  { position: 2, name: "Helium", weight: 4.0026, symbol: "He" },
+  { position: 3, name: "Lithium", weight: 6.941, symbol: "Li" },
+];
+```
+
+```html
+<!-- Sorting -->
+<table
+  mat-table
+  [dataSource]="dataSource"
+  matSort
+  (matSortChange)="announceSortChange($event)"
+>
+  <ng-container matColumnDef="position">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+    <td mat-cell *matCellDef="let element">{{element.position}}</td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
+```
+
+### List
+
+```html
+<mat-list>
+  <mat-list-item>
+    <span matListItemTitle>Pepper</span>
+    <span matListItemLine>Produced by a plant</span>
+  </mat-list-item>
+  <mat-list-item>
+    <span matListItemTitle>Salt</span>
+    <span matListItemLine>Extracted from sea water</span>
+  </mat-list-item>
+  <mat-list-item>
+    <span matListItemTitle>Paprika</span>
+    <span matListItemLine>Produced by dried and ground red peppers</span>
+  </mat-list-item>
+</mat-list>
+```
+
+## Forms
+
+### Template Driven
+
+```html
+<form (ngSubmit)="onSubmit(f)" #f="ngForm">
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input
+      type="text"
+      id="username"
+      class="form-control"
+      name="username"
+      ngModel
+      required
+    />
+  </div>
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input
+      type="email"
+      id="email"
+      class="form-control"
+      name="email"
+      ngModel
+      required
+      email
+      #email="ngModel"
+    />
+    <span class="help-block" *ngIf="!email.valid && email.touched">
+      Please enter a valid email address!
+    </span>
+  </div>
+
+  <button type="submit" class="btn btn-primary" [disabled]="!f.valid">
+    Submit
+  </button>
+</form>
+```
+
+```tsx
+export class AppComponent {
+  onSubmit(form: NgForm) {
+    console.log(form.value.username);
+  }
+}
+```
+
+### Reactive
+
+// ng generate @angular/material:table/menu/address-form/navigation/dashboard name
+
+```html
+<form [formGroup]="regForm">
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input
+      type="text"
+      id="username"
+      class="form-control"
+      formControlName="username"
+    />
+    <span
+      *ngIf="!regForm.get('username').valid && regForm.get('username').touched"
+      class="help-block"
+    >
+      Please enter a valid username!
+    </span>
+  </div>
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input
+      type="email"
+      id="email"
+      class="form-control"
+      formControlName="email"
+    />
+    <span
+      *ngIf="!regForm.get('email').valid && regForm.get('email').touched"
+      class="help-block"
+    >
+      Please enter a valid email address!
+    </span>
+  </div>
+
+  <button
+    type="submit"
+    class="btn btn-primary"
+    (click)="onSubmit()"
+    [disabled]="!regForm.valid"
+  >
+    Submit
+  </button>
+</form>
+```
+
+```tsx
+export class AppComponent implements OnInit {
+  regForm: FormGroup;
+
+  ngOnInit() {
+    this.regForm = new FormGroup({
+      username: new FormControl(null, Validators.required),
+      email: new FormControl(null, [Validators.required, Validators.email]),
+    });
+  }
+
+  onSubmit() {
+    console.log(this.regForm.value);
+  }
+}
+```
+
+## Pipes
+
+```
+<td mat-cell *matCellDef="let element">{{element.endTs |date: 'dd.MM.yyyy
+hh:mm:ss' }}</td>
+{{auction.startingPrice | currency}}
+{{auction.startingPrice | currency:'EUR'}}
+```
+
+## Date-API
+
+### LocalDate
+
+```
+LocalDate localDate=LocalDate.now();
+LocalDate.of(2015,02,20);
+LocalDate.parse("2015-02-20");
+LocalDate tomorrow=LocalDate.now().plusDays(1);
+LocalDate previousMonthSameDay=LocalDate.now().minus(1,ChronoUnit.MONTHS);
+DayOfWeek sunday = LocalDate.parse("2016-06-12").getDayOfWeek();
+int twelve = LocalDate.parse("2016-06-12").getDayOfMonth();
+boolean leapYear=LocalDate.now().isLeapYear();
+boolean notBefore = LocalDate.parse("2016-06-12").isBefore(LocalDate.parse("2016-06-11"));
+boolean isAfter = LocalDate.parse("2016-06-12").isAfter(LocalDate.parse("2016-06-11"));
+LocalDateTime beginningOfDay = LocalDate.parse("2016-06-12").atStartOfDay();
+LocalDate firstDayOfMonth = LocalDate.parse("2016-06-12").with(TemporalAdjusters.firstDayOfMonth());
+```
+
+### LocalDateTime
+
+```
+LocalDateTime.now();
+LocalDateTime.of(2015,Month.FEBRUARY,20,06,30);
+LocalDateTime.parse("2015-02-20T06:30:00");
+localDateTime.plusDays(1);
+localDateTime.minusHours(2);
+localDateTime.getMonth();
+```
+
+### DateFormat
+
+```
+@JsonbDateFormat(value = "yyyy-MM-dd")
+@Column(name = "BOOKINGDATE")
+private LocalDate bookingDate;
+@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+private LocalDateTime lastUpdate;
+```
+
+# Advanced Quarkus Code Snippets
+
+
+## Table
+
+```java
+@Entity
+@TableGenerator(name = "addressGen", initialValue = 1000, allocationSize = 50)
+public class Address {
+  @Id
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "addressGen")
+  public Long id;
+
+  public String street;
+}
+```
+
+## Sequence
+
+```java
+@Entity
+@SequenceGenerator(name = "addressSeq", initialValue = 1000, allocationSize = 50)
+public class Address {
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "addressSeq")
+  public Long id;
+
+  public String street;
+}
+```
+
+## UriInfo
+
+```java
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response putEmployee(Employee employee, @Context UriInfo context) {
+        try {
+            Employee emp = repo.getEntityManager().merge(employee);
+            URI uri = context.getAbsolutePathBuilder().path(Long.toString(emp.id)).build();
+            return Response.created(uri).build();
+        }catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+```
+
+## Repository without panache
+
+```java
+@ApplicationScoped
+public class AddressRepository {
+
+  @Inject
+  EntityManager em;
+
+  public Address save(Address address) {
+    if (address.getId() == null) {
+      em.persist(address);
+      return address;
+    } else {
+      return em.merge(address);
+    }
+  }
+
+  public Address findById(Long id) {
+    return em.find(Address.class, id);
+  }
+
+  public void deleteById(Long id) {
+    Address address = findById(id);
+    em.remove(address);
+  }
+}
+```
+
+## Relations example
+
+```java
+@Embeddable
+public class MembershipId implements Serializable {
+    @Column(name="ssid")
+    public long ssid;
+
+    @Column(name="club_id")
+    public long clubId;
+}
+```
+
+```java
+@Entity
+public class Membership extends PanacheEntityBase {
+
+    @EmbeddedId
+    public MembershipId membershipId;
+
+    @ManyToOne
+    @MapsId("ssid")
+    @JoinColumn(name = "ssid")
+    public Person person;
+
+    @ManyToOne
+    @MapsId("clubId")
+    @JoinColumn(name="club_Id")
+    public Club club;
+
+    @Column(name = "join_date")
+    public LocalDate joinDate;
+
+    @Column(name = "exit_date")
+    public LocalDate exitDate;
+}
+```
+
+```java
+@Entity
+public class Person extends PanacheEntityBase {
+    @Id
+    @GeneratedValue
+    public long ssid;
+
+    @Column(name = "first_name")
+    public String firstname;
+
+    @Column(name = "last_name")
+    public String lastname;
+
+    @OneToMany(mappedBy = "person")
+    @JsonIgnoreProperties({"person"})
+    List<Membership> memberships;
+}
+```
+
+```java
+@Entity
+public class Club extends PanacheEntityBase {
+    @Id
+    @GeneratedValue
+    public long id;
+
+    public String name;
+
+    @OneToMany(mappedBy = "club")
+    @JsonIgnoreProperties({"club"})
+    public List<Membership> memberships;
+}
+```
+
+
+## Eventbus
 
 ```
 @Inject
@@ -1587,15 +1511,15 @@ public String consume(String name){
 }
 ```
 
-### ChronoUnit
+## ChronoUnit
 
 ```java
 ChronoUnit.DAYS.between(startDate, endDate)
 ```
 
-### Encoder and Decoder
+## Encoder and Decoder
 
-#### GameWebsocket
+### GameWebsocket
 
 ```java
 @ServerEndpoint(value = "/quiz-game-websocket/{gameId}/{name}",
@@ -1638,7 +1562,7 @@ public class GameWebSocket {
 }
 ```
 
-#### Mapstruct
+### Mapstruct
 
 ```java
 @Mapper
@@ -1676,7 +1600,7 @@ public interface GameMapper {
 }
 ```
 
-#### Encoder
+### Encoder
 
 ```java
 public class GameEncoder implements Encoder.Text<Game> {
@@ -1700,7 +1624,7 @@ public class GameEncoder implements Encoder.Text<Game> {
 }
 ```
 
-#### Decoder
+### Decoder
 
 ```java
 public class GameDecoder implements Decoder.Text<Game> {
